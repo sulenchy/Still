@@ -167,14 +167,17 @@ img {
   grid-template-columns: 0.88fr 1.12fr;
   align-items: center;
   gap: 6vw;
-  padding: 150px clamp(24px,7vw,108px) 90px;
+  padding: 40px clamp(24px,7vw,108px) 90px;
 }
 
 .hero-copy {
   max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.eyebrow, .kicker, .section-heading>div>span {
+.eyebrow, .section-heading>div>span {
   color: var(--peach);
   letter-spacing: .17em;
   text-transform: uppercase;
@@ -267,22 +270,22 @@ img {
 }
 
 .collage figure {
-    background: var(--paper);
-    margin: 0;
-    padding: 11px;
-    position: absolute;
-    box-shadow: 0 24px 60px #1e2e2826;
+  background: var(--paper);
+  margin: 0;
+  padding: 11px;
+  position: absolute;
+  box-shadow: 0 24px 60px #1e2e2826;
 }
 
 .main-photo {
   position: absolute;
 
   z-index: 2;
-    width: 65%;
-    height: 500px;
-    top: 20px;
-    left: 8%;
-    transform: rotate(2.5deg);
+  width: 65%;
+  height: 500px;
+  top: 20px;
+  left: 8%;
+  transform: rotate(2.5deg);
 }
 
 .main-photo img {
@@ -443,6 +446,7 @@ button {
 
   .hero-copy {
     max-width: 700px;
+    align-items: center;
   }
 
   .collage {
