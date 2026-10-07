@@ -1,5 +1,5 @@
 # PMem
-A modern day photo portfolio for people to keep their memories.
+A modern day photo portfolio for people to keep their memories. 
 
 ## Built With
 
