@@ -17,7 +17,8 @@
         <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span>
         <span>PMem</span>
       </a>
-
+<input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" />
+      <label for="menu-toggle" class="menu" aria-label="Toggle menu"><i></i><i></i></label>
       <nav class="nav" aria-label="Primary navigation">
         <a href="#gallery">Memories</a>
         <a href="#how-it-works">How it works</a>
@@ -31,20 +32,49 @@
           Start your archive
         </a>
       </div>
+      
     </header>
     <main>
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <p class="eyebrow">For all the days worth remembering</p>
-
-          <h1 id="hero-title">Hold on to the little things.</h1>
-
+          <span class="eyebrow">For all the days worth remembering</span>
+          <h1>Hold on to<br><em>the little things.</em></h1>
           <p>A beautiful, living archive for the stories your family is still writing. Turn everyday photos into memories that grow more meaningful with time.</p>
-
-          <div class="hero-actions">...</div>
+          <div class="hero-actions">
+            <button class="primary">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M10 4v12M4 10h12"></path>
+              </svg> 
+              Add your first memory
+            </button>
+            <button class="btn-underlined">
+              Explore the archive 
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M4 10h11M11 6l4 4-4 4"></path>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div class="collage">...</div>
+        <div class="collage" aria-label="A collection of family memories">
+          <figure class="main-photo">
+            <img
+              src="public/images/collage-big-photo.avif"
+              alt="Family spending time together outdoors"
+            />
+            <figcaption><span>Lake District</span><span>Summer ’24</span></figcaption>
+          </figure>
+
+          <figure class="small-photo">
+            <img
+              src="public/images/collage-small-photo.avif"
+              alt="Child smiling during a family moment"
+            />
+          </figure>
+          <div class="memory-note"><small>JUNE 18, 2024</small><strong>A very good day</strong><p>We forgot the picnic blanket. Nobody minded.</p></div>
+
+          <div class="caption-chip"><b>M</b><span><small>Added by Mara</small>“The one with the strawberries.”</span></div>
+        </div>
       </section>
 
       <section
