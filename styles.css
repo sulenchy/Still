@@ -11,6 +11,7 @@
   --paper: #fffdf7;
   --peach: #e7a486;
   --line: #21342d29;
+  --white: #fff;
   --serif: "Instrument Serif", Georgia, serif;
   --sans: "DM Sans", Arial, sans-serif;
   --beige: #f1d5a5;
@@ -31,8 +32,8 @@ html {
 body {
   margin: 0;
   font-family: var(--sans);
-  color: #21342d;
-  background: #fffdf7;
+  color: var(--ink);
+  background: var(--paper);
 }
 
 img {
@@ -134,16 +135,23 @@ img {
   min-height: 44px;
   padding: 0 20px;
 
+  border: 0;
   border-radius: 999px;
 
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
+  cursor: pointer;
 }
 
 .button-primary {
-  color: white;
-  background: #183e32;
+  color: var(--white);
+  background: var(--forest);
+}
+
+.button svg, .closing button svg, .add-card svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5px;
+    width: 18px;
 }
 
 .menu {
@@ -213,7 +221,7 @@ img {
   max-width: 560px;
 
   font-family: 'Instrument Serif';
-  font-size: clamp(52px, 6vw, 88px); /* Responsive font size: Never go below 52px, scale with the viewport around 6vw, but never exceed 88px */
+  font-size: clamp(52px, 6vw, 88px); /* Fluid heading size: 52px–88px */
   font-weight: 400;
   line-height: 0.95;
   letter-spacing: -0.04em;
@@ -223,7 +231,7 @@ img {
   max-width: 500px;
   margin: 28px 0 0;
 
-  color: #65716c;
+  color: var(--muted);
   font-size: 18px;
   line-height: 1.6;
 }
@@ -232,27 +240,6 @@ img {
   display: flex;
   align-items: center;
   gap: 24px;
-
-  margin-top: 32px;
-}
-
-.primary {
-    background: var(--forest);
-    color: #fff;
-    border: 0;
-    border-radius: 40px;
-    align-items: center;
-    gap: 9px;
-    padding: 14px 20px;
-    font-size: 12px;
-    display: inline-flex;
-    box-shadow: 0 10px 25px #183e3226;
-}
-.primary svg, .closing button svg, .add-card svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5px;
-    width: 18px;
 }
 
 .hero-link {
@@ -436,7 +423,7 @@ button {
     position: absolute;
     top: 65px;
     right: 18px;
-    box-shadow: 0 15px 35px #1e2e2824;
+    box-shadow: 0 15px 35px #1e2e28;
   }
 
   .hero {
