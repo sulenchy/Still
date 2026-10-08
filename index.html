@@ -17,8 +17,15 @@
         <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span>
         <span>Still</span>
       </a>
-      <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" />
-      <label for="menu-toggle" class="menu" aria-label="Toggle menu"><i></i><i></i></label>
+      <input
+        type="checkbox"
+        id="menu-toggle"
+        class="menu-toggle"
+        aria-label="Toggle menu"
+      />
+      <label for="menu-toggle" class="menu" aria-label="Toggle menu"
+        ><i></i><i></i
+      ></label>
       <nav class="nav" aria-label="Primary navigation">
         <a href="#gallery">Memories</a>
         <a href="#how-it-works">How it works</a>
@@ -32,23 +39,29 @@
           Start your archive
         </a>
       </div>
-      
     </header>
     <main>
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <span class="eyebrow">For all the days worth remembering</span>
-          <h1 id="hero-title">Hold on to<br><em>the little things.</em></h1>
-          <p>A beautiful, living archive for the stories your family is still writing. Turn everyday photos into memories that grow more meaningful with time.</p>
+          <h1 id="hero-title">Hold on to<br /><em>the little things.</em></h1>
+          <p>
+            A beautiful, living archive for the stories your family is still
+            writing. Turn everyday photos into memories that grow more
+            meaningful with time.
+          </p>
           <div class="hero-actions">
-            <button class="button button-primary" aria-label="Add your first memory">
+            <button
+              class="button button-primary"
+              aria-label="Add your first memory"
+            >
               <svg viewBox="0 0 20 20" aria-hidden="true">
                 <path d="M10 4v12M4 10h12"></path>
-              </svg> 
+              </svg>
               Add your first memory
             </button>
             <a class="btn-underlined">
-              Explore the archive 
+              Explore the archive
               <svg viewBox="0 0 20 20" aria-hidden="true">
                 <path d="M4 10h11M11 6l4 4-4 4"></path>
               </svg>
@@ -62,7 +75,9 @@
               src="public/images/collage-big-photo.avif"
               alt="Family spending time together outdoors"
             />
-            <figcaption><span>Lake District</span><span>Summer ’24</span></figcaption>
+            <figcaption>
+              <span>Lake District</span><span>Summer ’24</span>
+            </figcaption>
           </figure>
 
           <figure class="small-photo">
@@ -71,18 +86,136 @@
               alt="Child smiling during a family moment"
             />
           </figure>
-          <div class="memory-note"><small>JUNE 18, 2024</small><strong>A very good day</strong><p>We forgot the picnic blanket. Nobody minded.</p></div>
+          <div class="memory-note">
+            <small>JUNE 18, 2024</small><strong>A very good day</strong>
+            <p>We forgot the picnic blanket. Nobody minded.</p>
+          </div>
 
-          <div class="caption-chip"><b>M</b><span><small>Added by Mara</small>“The one with the strawberries.”</span></div>
+          <div class="caption-chip">
+            <b>M</b
+            ><span
+              ><small>Added by Mara</small>“The one with the
+              strawberries.”</span
+            >
+          </div>
         </div>
       </section>
 
-      <section
-        id="gallery"
-        class="gallery-section"
-        aria-labelledby="gallery-title"
-      >
-        ...
+      <section class="gallery-section" id="gallery">
+        <div class="section-heading">
+          <div>
+            <span>THE FAMILY ARCHIVE</span>
+            <h2>A life, gathered together.</h2>
+          </div>
+          <p>
+            Not a camera roll. A considered collection of the people, places,
+            and tiny details that make a family yours.
+          </p>
+        </div>
+        <div class="filter-line">
+          <button class="active">All memories</button><button>Family</button
+          ><button>Mara</button><button>Leo</button><button>Nana</button
+          ><span>128 memories</span>
+        </div>
+        <div class="gallery-grid">
+          <article class="gallery-card tall">
+            <img
+              alt="Two sisters sitting in a field"
+              src="https://images.unsplash.com/photo-1611890279484-2f70df6730fe?auto=format&amp;fit=crop&amp;w=1000&amp;q=86"
+            />
+            <div>
+              <small>July 2023</small>
+              <h3>The summer we stayed out late</h3>
+              <button aria-label="Open The summer we stayed out late">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 6l4 4-4 4"></path>
+                </svg>
+              </button>
+            </div>
+          </article>
+          <article class="gallery-card wide">
+            <img
+              alt="Mother and child sharing a quiet moment"
+              src="https://images.unsplash.com/photo-1784013225972-34a4e810e825?auto=format&amp;fit=crop&amp;w=1200&amp;q=86"
+            />
+            <div>
+              <small>April 2024</small>
+              <h3>Sunday at Nana’s</h3>
+              <button aria-label="Open Sunday at Nana’s">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 6l4 4-4 4"></path>
+                </svg>
+              </button>
+            </div>
+          </article>
+          <article class="gallery-card">
+            <img
+              alt="Grandmother with her granddaughter"
+              src="https://images.unsplash.com/photo-1505075288090-14733a88df88?auto=format&amp;fit=crop&amp;w=900&amp;q=86"
+            />
+            <div>
+              <small>October 2021</small>
+              <h3>Her favorite stories</h3>
+              <button aria-label="Open Her favorite stories">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 6l4 4-4 4"></path>
+                </svg>
+              </button>
+            </div>
+          </article>
+          <article class="gallery-card">
+            <img
+              alt="Parent carrying a child outdoors"
+              src="https://images.unsplash.com/photo-1628676306092-1238ef1dc851?auto=format&amp;fit=crop&amp;w=900&amp;q=86"
+            />
+            <div>
+              <small>June 2022</small>
+              <h3>Tiny explorer</h3>
+              <button aria-label="Open Tiny explorer">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 6l4 4-4 4"></path>
+                </svg>
+              </button>
+            </div>
+          </article>
+          <article class="gallery-card wide">
+            <img
+              alt="Family enjoying a picnic"
+              src="https://images.unsplash.com/photo-1681311311317-a0561a8eef74?auto=format&amp;fit=crop&amp;w=1200&amp;q=86"
+            />
+            <div>
+              <small>May 2024</small>
+              <h3>Picnic weather</h3>
+              <button aria-label="Open Picnic weather">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 6l4 4-4 4"></path>
+                </svg>
+              </button>
+            </div>
+          </article>
+          <article class="gallery-card tall">
+            <img
+              alt="Father holding his daughter"
+              src="https://images.unsplash.com/photo-1717883300138-f1fadd7d04cc?auto=format&amp;fit=crop&amp;w=900&amp;q=86"
+            />
+            <div>
+              <small>August 2023</small>
+              <h3>Always up here</h3>
+              <button aria-label="Open Always up here">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 6l4 4-4 4"></path>
+                </svg>
+              </button>
+            </div>
+          </article>
+          <button class="add-card">
+            <b
+              ><svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M10 4v12M4 10h12"></path></svg></b
+            ><strong>Add a moment</strong
+            ><small>Photo, story, voice, or video</small>
+          </button>
+        </div>
       </section>
 
       <section
