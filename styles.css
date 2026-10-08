@@ -154,17 +154,15 @@ object {
 }
 
 .button-primary {
-  color: var(--white);
+  color: #fff;
   background: var(--forest);
 }
 
-.button svg,
-.closing button svg,
-.add-card svg {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5px;
-  width: 18px;
+.button svg, .closing button svg, .add-card svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5px;
+    width: 18px;
 }
 
 .menu {
