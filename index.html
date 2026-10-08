@@ -340,8 +340,84 @@
         </div>
       </section>
 
-      <section id="contact" class="contact" aria-labelledby="contact-title">
-        ...
+      <section class="contact" id="contact" aria-labelledby="contact-title">
+        <div class="contact-intro">
+          <span class="kicker">WE’RE HERE TO HELP</span>
+          <h2>Have a question?<br /><em>Let’s talk.</em></h2>
+          <p>
+            Whether you’re thinking about starting an archive, bringing your
+            family in, or preserving something especially meaningful, we’d love
+            to hear from you.
+          </p>
+          <div class="contact-details">
+            <span>
+              <small>EMAIL US</small>
+              <strong>hello@stillarchive.com</strong>
+            </span>
+            <span>
+              <small>RESPONSE TIME</small>
+              <strong>Usually within two working days</strong>
+            </span>
+          </div>
+          <div class="privacy-note">
+            <span class="brand-icon" aria-hidden="true"> <i></i><i></i><i></i> </span>
+            <p>
+              Your stories stay yours. We’ll only use your details to reply to
+              this message.
+            </p>
+          </div>
+        </div>
+        <div class="form-wrap">
+          <form>
+            <div class="form-row">
+              <label>
+                <span>Your name</span>
+                <input
+                  placeholder="Anna Miller"
+                  required=""
+                  type="text"
+                  name="name"
+                />
+              </label>
+              <label>
+                <span>Email address</span>
+                <input
+                  placeholder="anna@example.com"
+                  required=""
+                  type="email"
+                  name="email"
+              /></label>
+            </div>
+            <label
+              ><span>What can we help with?</span
+              ><select name="topic" required="">
+                <option value="" disabled="" selected="">Choose a topic</option>
+                <option>Starting an archive</option>
+                <option>Inviting my family</option>
+                <option>Privacy and preservation</option>
+                <option>Something else</option>
+              </select></label
+            ><label
+              ><span>Your message</span
+              ><textarea
+                name="message"
+                rows="6"
+                placeholder="Tell us what’s on your mind..."
+                required=""
+              ></textarea>
+            </label>
+            <div class="form-submit">
+              <small
+                >By sending this form, you agree to our privacy policy.</small
+              ><button class="button button-primary" type="submit">
+                Send message
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 10h11M11 6l4 4-4 4"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
       </section>
     </main>
     <footer></footer>

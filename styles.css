@@ -873,6 +873,114 @@ h2 em {
 .role-3 {
     background: var(--pale);
 }
+
+.contact {
+    grid-template-columns: .82fr 1.18fr;
+    align-items: center;
+    gap: 9vw;
+    padding: 120px clamp(24px, 8vw, 125px);
+    display: grid;
+}
+
+.contact h2 {
+    margin: 17px 0 24px;
+}
+
+.contact-intro>p {
+    max-width: 480px;
+}
+
+.contact-details {
+    border-block: 1px solid var(--line);
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 35px 0;
+    padding: 22px 0;
+    display: grid;
+}
+
+.contact-details small {
+    color: var(--peach);
+    letter-spacing: .12em;
+    margin-bottom: 6px;
+    font-size: 7px;
+}
+.contact-details small, .contact-details strong {
+    display: block;
+}
+
+.contact-details strong {
+    font: 15px var(--serif);
+}
+
+.privacy-note {
+    color: var(--muted);
+    align-items: center;
+    gap: 13px;
+    display: flex;
+}
+
+.privacy-note p {
+    max-width: 330px;
+    margin: 0;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.form-wrap {
+    background: var(--paper);
+    min-height: 525px;
+    padding: clamp(25px, 4vw, 50px);
+    display: flex;
+    box-shadow: 0 20px 60px #1e2e2817;
+}
+
+.form-wrap form {
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    display: flex;
+}
+
+.form-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    display: grid;
+}
+
+.form-wrap label>span {
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-size: 9px;
+    display: block;
+}
+
+.form-wrap input, .form-wrap select, .form-wrap textarea {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    width: 100%;
+    font: 17px var(--serif);
+    background: 0 0;
+    border-radius: 0;
+    outline: 0;
+    padding: 13px 0;
+}
+
+.form-submit {
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-top: auto;
+    display: flex;
+}
+
+.form-submit>small {
+    max-width: 220px;
+    color: var(--muted);
+    font-size: 8px;
+    line-height: 1.5;
+}
 @media (max-width: 980px) {
   .site-header {
     height: 70px;
