@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="PMem is a web application that allows users to create and manage personal memories. Users can add, edit, and delete memories, as well as categorize them for easy access. The application provides a user-friendly interface and ensures that all data is securely stored."
+      content="Still is a web application that allows users to create and manage personal memories. Users can add, edit, and delete memories, as well as categorize them for easy access. The application provides a user-friendly interface and ensures that all data is securely stored."
     />
-    <title>Still</title>
+    <title>Still - Landing Page</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
 
   <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="site-header">
       <a href="/" class="brand" aria-label="Still home">
         <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -40,7 +41,7 @@
         </a>
       </div>
     </header>
-    <main>
+    <main id="main-content">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <span class="eyebrow">For all the days worth remembering</span>
@@ -93,7 +94,6 @@
           </div>
         </div>
       </section>
-
       <section class="gallery-section" id="gallery">
         <div class="section-heading">
           <div>
@@ -217,7 +217,7 @@
       >
         <div class="story-copy">
           <span class="kicker">MORE THAN A PHOTO</span>
-          <h2>Every picture has a story. <em>Help it remember.</em></h2>
+          <h2 id="story-title">Every picture has a story. <em>Help it remember.</em></h2>
           <p>
             Add the things a photograph can’t hold: the way she laughed, what he
             always said, the song playing in the kitchen.
@@ -281,7 +281,7 @@
         </div>
         <div class="future-copy">
           <span class="kicker">A GIFT FOR LATER</span>
-          <h2>Keep memories for who they’re becoming.</h2>
+          <h2 id="future-title">Keep memories for who they’re becoming.</h2>
           <p>
             Create a private collection for someone too young to remember today.
             On the date you choose, they’ll receive a world of stories made just
@@ -303,7 +303,7 @@
       <section class="family" id="family" aria-labelledby="roles-title">
         <div class="center-heading">
           <span class="kicker">YOUR PEOPLE, YOUR WAY</span>
-          <h2>It takes a family to tell a life.</h2>
+          <h2 id="roles-title">It takes a family to tell a life.</h2>
           <p>
             Invite the people who hold a piece of the story. Everyone has a
             place, and you’re always in control.
@@ -336,7 +336,7 @@
       <section class="contact" id="contact" aria-labelledby="contact-title">
         <div class="contact-intro">
           <span class="kicker">WE’RE HERE TO HELP</span>
-          <h2>Have a question?<br /><em>Let’s talk.</em></h2>
+          <h2 id="contact-title">Have a question?<br /><em>Let’s talk.</em></h2>
           <p>
             Whether you’re thinking about starting an archive, bringing your
             family in, or preserving something especially meaningful, we’d love
@@ -417,7 +417,7 @@
       <section class="closing" aria-labelledby="closing-title">
         <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span
         ><span class="kicker">YOUR STORY STARTS HERE</span>
-        <h2>Some day, these will be<br /><em>the good old days.</em></h2>
+        <h2 id="closing-title">Some day, these will be<br /><em>the good old days.</em></h2>
         <p>Start with one photo. Add the story only you can tell.</p>
         <button class="button">
           <svg viewBox="0 0 20 20" aria-hidden="true">
@@ -427,7 +427,7 @@
         ><small>Private by default · Invite family when you’re ready</small>
       </section>
     </main>
-    <footer class="footer" aria-labelledby="footer-title">
+    <footer class="footer" aria-label="Site footer">
       <div class="brand">
         <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span
         ><span>still</span>
