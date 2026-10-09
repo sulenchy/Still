@@ -31,9 +31,37 @@ html {
 
 body {
   margin: 0;
+  padding: 0;
   font-family: var(--sans);
   color: var(--ink);
   background: var(--paper);
+}
+
+/* ---------- Accessibility: Skip Link & Focus States ---------- */
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: 20px;
+  background: var(--forest);
+  color: var(--white);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  z-index: 9999;
+  transition: top 0.2s ease-in-out;
+}
+
+.skip-link:focus {
+  top: 20px;
+  outline: 2px solid var(--peach);
+  outline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--forest);
+  outline-offset: 3px;
 }
 
 img {
@@ -66,7 +94,6 @@ object {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-
   color: inherit;
   text-decoration: none;
 }
@@ -966,6 +993,15 @@ h2 em {
   border-radius: 0;
   outline: 0;
   padding: 13px 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-wrap input:focus-visible,
+.form-wrap select:focus-visible,
+.form-wrap textarea:focus-visible {
+  border-bottom-color: var(--forest);
+  box-shadow: 0 2px 0 0 var(--forest);
+  outline: none;
 }
 
 .form-submit {
@@ -1174,3 +1210,20 @@ h2 em {
     justify-items: center;
   }
 }
+
+/* ---------- Accessibility: Prefers Reduced Motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
