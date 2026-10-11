@@ -1,7 +1,7 @@
 {
   "name": "Still",
   "version": "1.0.0",
-  "description": "Still is a web application that allows users to create and manage personal memories. Users can add, edit, and delete memories, as well as categorize them for easy access. The application provides a user-friendly interface and ensures that all data is securely stored.",
+  "description": "Still — A Living Family Archive.",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
