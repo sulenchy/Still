@@ -1,0 +1,30 @@
+{
+  "name": "Still",
+  "version": "1.0.0",
+  "description": "Still is a web application that allows users to create and manage personal memories. Users can add, edit, and delete memories, as well as categorize them for easy access. The application provides a user-friendly interface and ensures that all data is securely stored.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.8.0",
+      "onFail": "download"
+    }
+  },
+  "type": "module",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.4"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}
