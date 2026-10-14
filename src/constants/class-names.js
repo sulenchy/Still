@@ -17,4 +17,11 @@ export const fieldClass =
 export const bar =
   "block w-1.5 origin-bottom rounded-t-[9px] rounded-b-[2px] bg-current";
 
-export const skipLink = "absolute -top-[999px] left-5 z-[9999] rounded-lg bg-forest px-5 py-3 text-sm font-medium text-white no-underline transition-[top] duration-200 ease-in-out focus:top-5 focus:outline-2 focus:outline-offset-[3px] focus:outline-peach"
+export const skipLink = "absolute -top-[999px] left-5 z-[9999] rounded-lg bg-forest px-5 py-3 text-sm font-medium text-white no-underline transition-[top] duration-200 ease-in-out focus:top-5 focus:outline-2 focus:outline-offset-[3px] focus:outline-peach";
+
+export const closedNav =
+  'hidden items-center gap-8 desk:flex';
+
+export const openNav =
+  'absolute top-[65px] right-[18px] z-50 flex flex-col items-stretch gap-8 bg-paper p-4 shadow-[0_15px_35px_#1e2e28] desk:static desk:z-auto desk:flex-row desk:items-center desk:bg-transparent desk:p-0 desk:shadow-none';
+

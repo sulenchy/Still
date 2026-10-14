@@ -57,3 +57,10 @@ export const roles = [
   ["C", "03", "Contributor", "Helps fill in the moments they remember.", "bg-[#e9d5a7]"],
   ["V", "04", "Viewer", "Enjoys the archive, without changing a thing.", "bg-pale"],
 ];
+
+export const links = [
+  ['#gallery', 'Memories'],
+  ['#how-it-works', 'How it works'],
+  ['#family', 'For families'],
+  ['#contact', 'Contact'],
+];
