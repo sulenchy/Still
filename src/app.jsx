@@ -1,433 +1,515 @@
 import './styles.css';
+import {
+  bar,
+  editorial,
+  eyebrow,
+  fieldClass,
+  kicker,
+  primaryButton,
+  strokeIcon,
+} from './constants/class-names.js';
+import { filters, memories, roles, steps } from './constants/data.js';
+
+function BrandIcon({ className = "" }) {
+  return (
+    <span
+      className={`inline-flex h-7 w-[27px] items-end justify-center gap-0.5 ${className}`}
+      aria-hidden="true"
+    >
+      <i className={`${bar} h-[17px] -rotate-[23deg]`} />
+      <i className={`${bar} h-[25px]`} />
+      <i className={`${bar} h-[17px] rotate-[23deg]`} />
+    </span>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className={strokeIcon}>
+      <path d="M10 4v12M4 10h12" />
+    </svg>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className={strokeIcon}>
+      <path d="M4 10h11M11 6l4 4-4 4" />
+    </svg>
+  );
+}
 
 const App = () => {
   return (
     <>
-      <header className="min-h-20 flex align-center justify-between px-[5vw]">
-      <a href="/" className="brand" aria-label="Still home">
-        <span className="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span>Still</span>
-      </a>
-      <input
-        type="checkbox"
-        id="menu-toggle"
-        className="menu-toggle"
-        aria-label="Toggle menu"
-      />
-      <label for="menu-toggle" className="menu" aria-label="Toggle menu"
-        ><i></i><i></i
-      ></label>
-      <nav className="nav" aria-label="Primary navigation">
-        <a href="#gallery">Memories</a>
-        <a href="#how-it-works">How it works</a>
-        <a href="#family">For families</a>
-        <a href="#contact">Contact</a>
-      </nav>
-
-      <div className="header-actions">
-        <a href="#" className="sign-in">Sign in</a>
-        <a href="#gallery" className="custom-button custom-button-primary">
-          Start your archive
+      <header className="relative z-20 flex h-[70px] items-center justify-between px-[5vw] desk:h-auto desk:min-h-[82px]">
+        <a href="/" className="inline-flex items-center gap-2.5" aria-label="Still home">
+          <BrandIcon />
+          <span className="font-serif text-[26px] leading-[normal] font-normal">Still</span>
         </a>
-      </div>
+        <input
+          type="checkbox"
+          id="menu-toggle"
+          className="peer sr-only"
+          aria-label="Toggle menu"
+        />
+        <label
+          htmlFor="menu-toggle"
+          className="block size-9 cursor-pointer desk:hidden"
+          aria-label="Toggle menu"
+        >
+          <i className="mx-auto my-[5px] block h-px w-[18px] bg-ink" />
+          <i className="mx-auto my-[5px] block h-px w-[18px] bg-ink" />
+        </label>
+        <nav
+          className="hidden items-center gap-8 desk:flex max-desk:peer-checked:absolute max-desk:peer-checked:top-[65px] max-desk:peer-checked:right-[18px] max-desk:peer-checked:z-50 max-desk:peer-checked:flex max-desk:peer-checked:flex-col max-desk:peer-checked:items-stretch max-desk:peer-checked:bg-paper max-desk:peer-checked:p-4 max-desk:peer-checked:shadow-[0_15px_35px_#1e2e28]"
+          aria-label="Primary navigation"
+        >
+          <a href="#gallery" className="text-sm hover:underline">Memories</a>
+          <a href="#how-it-works" className="text-sm hover:underline">How it works</a>
+          <a href="#family" className="text-sm hover:underline">For families</a>
+          <a href="#contact" className="text-sm hover:underline">Contact</a>
+        </nav>
+        <div className="hidden items-center gap-5 desk:flex">
+          <a href="#" className="text-sm">Sign in</a>
+          <a href="#gallery" className={primaryButton}>
+            Start your archive
+          </a>
+        </div>
       </header>
-      <main>
-        <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-copy">
-            <span className="eyebrow">For all the days worth remembering</span>
-            <h1 id="hero-title">Hold on to<br/><em>the little things.</em></h1>
-            <p>A beautiful, living archive for the stories your family is still writing. Turn everyday photos into memories that grow more meaningful with time.</p>
-            <div className="hero-actions">
-              <button className="custom-button custom-button-primary" aria-label="Add your first memory">
-                <svg viewBox="0 0 20 20" aria-hidden="true">
-                  <path d="M10 4v12M4 10h12"></path>
-                </svg>
+
+      <main id="main-content">
+        <section
+          className="grid min-h-[820px] grid-cols-1 items-center gap-10 px-[clamp(24px,7vw,108px)] pt-10 pb-[90px] desk:grid-cols-[0.88fr_1.12fr] desk:gap-[6vw]"
+          aria-labelledby="hero-title"
+        >
+          <div className="flex max-w-[700px] flex-col items-center gap-6 desk:max-w-[600px] desk:items-stretch">
+            <span className={eyebrow}>For all the days worth remembering</span>
+            <h1
+              id="hero-title"
+              className="max-w-[560px] font-serif text-[clamp(52px,6vw,88px)] leading-[0.95] font-normal tracking-[-0.04em]"
+            >
+              Hold on to<br /><em className="font-normal text-peach">the little things.</em>
+            </h1>
+            <p className="max-w-[490px] text-[15px] leading-[1.75] text-muted">
+              A beautiful, living archive for the stories your family is still writing. Turn everyday photos into memories that grow more meaningful with time.
+            </p>
+            <div className="flex flex-col items-center gap-3 desk:flex-row desk:gap-6">
+              <button type="button" className={primaryButton} aria-label="Add your first memory">
+                <PlusIcon />
                 Add your first memory
               </button>
-              <a className="btn-underlined">
-                Explore the archive 
-                <svg viewBox="0 0 20 20" aria-hidden="true">
-                  <path d="M4 10h11M11 6l4 4-4 4"></path>
-                </svg>
+              <a className="inline-flex items-center gap-3.5 border-b border-line py-2 text-[12px]">
+                Explore the archive
+                <ArrowIcon />
               </a>
             </div>
           </div>
 
-          <div className="collage" aria-label="A collection of family memories">
-            <figure className="main-photo">
+          <div
+            className="relative mx-auto h-[590px] w-[min(100%,700px)] min-w-0 desk:mx-0 desk:w-auto"
+            aria-label="A collection of family memories"
+          >
+            <figure className="absolute top-5 left-[8%] z-[2] h-[500px] w-[65%] rotate-[2.5deg] bg-paper p-[11px] shadow-[0_24px_60px_#1e2e2826]">
               <img
-                src="public/images/collage-big-photo.avif"
+                src="/images/collage-big-photo.avif"
                 alt="Family spending time together outdoors"
+                className="h-[calc(100%-40px)] object-cover saturate-[0.8]"
               />
-              <figcaption>
+              <figcaption className="flex h-10 items-center justify-between font-serif text-[12px] leading-[normal] text-muted italic">
                 <span>Lake District</span><span>Summer ’24</span>
               </figcaption>
             </figure>
 
-            <figure className="small-photo">
+            <figure className="absolute -right-[4%] bottom-[25px] z-[3] h-[265px] w-[36%] -rotate-[5deg] bg-paper p-2.5 shadow-[0_20px_40px_rgb(0_0_0/12%)]">
               <img
-                src="public/images/collage-small-photo.avif"
+                src="/images/collage-small-photo.avif"
                 alt="Child smiling during a family moment"
+                className="h-full object-cover saturate-[0.8]"
               />
             </figure>
-            <div className="memory-note">
-              <small>JUNE 18, 2024</small><strong>A very good day</strong>
-              <p>We forgot the picnic blanket. Nobody minded.</p>
+
+            <div className="absolute bottom-5 -left-[5%] z-[4] w-[180px] -rotate-[7deg] bg-beige p-5">
+              <small className="text-[8px] tracking-[0.1em]">JUNE 18, 2024</small>
+              <strong className="mt-3 mb-[5px] block font-serif text-[23px] leading-[normal] font-normal">
+                A very good day
+              </strong>
+              <p className="text-[12px] leading-[1.5]">
+                We forgot the picnic blanket. Nobody minded.
+              </p>
             </div>
 
-            <div className="caption-chip">
-              <b>M</b
-              ><span
-                ><small>Added by Mara</small>“The one with the
-                strawberries.”</span
-              >
+            <div className="absolute top-[55px] right-0 z-[5] flex items-center gap-2 rounded-[5px] bg-paper py-2.5 pr-3.5 pl-2.5 font-serif text-[12px] leading-[normal] italic shadow-[0_10px_30px_#1e2e2829]">
+              <b className="grid size-[30px] place-items-center rounded-full bg-pale not-italic">M</b>
+              <span>
+                <small className="block font-sans text-[7px] leading-[normal] font-normal tracking-[0.1em] text-muted uppercase not-italic">
+                  Added by Mara
+                </small>
+                “The one with the strawberries.”
+              </span>
             </div>
           </div>
         </section>
 
-        <section className="gallery-section" id="gallery">
-          <div className="section-heading">
+        <section
+          className="bg-paper px-5 py-20 desk:px-[clamp(24px,7vw,108px)] desk:py-[110px]"
+          id="gallery"
+        >
+          <div className="flex flex-col items-start gap-5 desk:flex-row desk:items-end desk:justify-between desk:gap-[50px]">
             <div>
-              <span>THE FAMILY ARCHIVE</span>
-              <h2>A life, gathered together.</h2>
+              <span className={kicker}>THE FAMILY ARCHIVE</span>
+              <h2 className={`${editorial} mt-[13px] text-[54px]`}>
+                A life, gathered together.
+              </h2>
             </div>
-            <p>
+            <p className="max-w-[390px] text-[13px] leading-[1.65] text-muted">
               Not a camera roll. A considered collection of the people, places,
               and tiny details that make a family yours.
             </p>
           </div>
-          <div className="filter-line">
-            <button className="active">All memories</button><button>Family</button
-            ><button>Mara</button><button>Leo</button><button>Nana</button
-            ><span>128 memories</span>
+          <div className="mt-[45px] mb-6 flex gap-2.5 border-b border-line pb-3.5">
+            {filters.map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                className={`shrink-0 rounded-[30px] px-[13px] py-2 text-[10px] ${
+                  filter === "All memories" ? "bg-forest text-white" : "text-muted"
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
+            <span className="ml-auto hidden font-serif text-[11px] leading-[normal] text-muted italic desk:block">
+              128 memories
+            </span>
           </div>
-          <div className="gallery-grid">
-            <article className="gallery-card tall">
-              <img
-                alt="Two sisters sitting in a field"
-                src="https://images.unsplash.com/photo-1611890279484-2f70df6730fe?auto=format&amp;fit=crop&amp;w=1000&amp;q=86"
-              />
-              <div>
-                <small>July 2023</small>
-                <h3>The summer we stayed out late</h3>
-                <button aria-label="Open The summer we stayed out late">
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M4 10h11M11 6l4 4-4 4"></path>
-                  </svg>
-                </button>
-              </div>
-            </article>
-            <article className="gallery-card wide">
-              <img
-                alt="Mother and child sharing a quiet moment"
-                src="https://images.unsplash.com/photo-1784013225972-34a4e810e825?auto=format&amp;fit=crop&amp;w=1200&amp;q=86"
-              />
-              <div>
-                <small>April 2024</small>
-                <h3>Sunday at Nana’s</h3>
-                <button aria-label="Open Sunday at Nana’s">
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M4 10h11M11 6l4 4-4 4"></path>
-                  </svg>
-                </button>
-              </div>
-            </article>
-            <article className="gallery-card">
-              <img
-                alt="Grandmother with her granddaughter"
-                src="https://images.unsplash.com/photo-1505075288090-14733a88df88?auto=format&amp;fit=crop&amp;w=900&amp;q=86"
-              />
-              <div>
-                <small>October 2021</small>
-                <h3>Her favorite stories</h3>
-                <button aria-label="Open Her favorite stories">
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M4 10h11M11 6l4 4-4 4"></path>
-                  </svg>
-                </button>
-              </div>
-            </article>
-            <article className="gallery-card">
-              <img
-                alt="Parent carrying a child outdoors"
-                src="https://images.unsplash.com/photo-1628676306092-1238ef1dc851?auto=format&amp;fit=crop&amp;w=900&amp;q=86"
-              />
-              <div>
-                <small>June 2022</small>
-                <h3>Tiny explorer</h3>
-                <button aria-label="Open Tiny explorer">
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M4 10h11M11 6l4 4-4 4"></path>
-                  </svg>
-                </button>
-              </div>
-            </article>
-            <article className="gallery-card wide">
-              <img
-                alt="Family enjoying a picnic"
-                src="https://images.unsplash.com/photo-1681311311317-a0561a8eef74?auto=format&amp;fit=crop&amp;w=1200&amp;q=86"
-              />
-              <div>
-                <small>May 2024</small>
-                <h3>Picnic weather</h3>
-                <button aria-label="Open Picnic weather">
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M4 10h11M11 6l4 4-4 4"></path>
-                  </svg>
-                </button>
-              </div>
-            </article>
-            <article className="gallery-card tall">
-              <img
-                alt="Father holding his daughter"
-                src="https://images.unsplash.com/photo-1717883300138-f1fadd7d04cc?auto=format&amp;fit=crop&amp;w=900&amp;q=86"
-              />
-              <div>
-                <small>August 2023</small>
-                <h3>Always up here</h3>
-                <button aria-label="Open Always up here">
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M4 10h11M11 6l4 4-4 4"></path>
-                  </svg>
-                </button>
-              </div>
-            </article>
-            <button className="add-card">
-              <b
-                ><svg viewBox="0 0 20 20" aria-hidden="true">
-                  <path d="M10 4v12M4 10h12"></path></svg></b
-              ><strong>Add a moment</strong
-              ><small>Photo, story, voice, or video</small>
+          <div className="grid auto-rows-[200px] grid-flow-dense grid-cols-2 gap-3 desk:auto-rows-[245px] desk:grid-cols-4">
+            {memories.map((memory) => (
+              <article
+                key={memory.title}
+                className={`group relative overflow-hidden bg-pale ${memory.layout}`}
+              >
+                <img
+                  alt={memory.alt}
+                  src={memory.src}
+                  className="h-full object-cover saturate-[0.78] transition-transform duration-500 ease-[ease] group-hover:scale-105"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(#0000,#091913c7)] px-[17px] pt-[45px] pb-4 text-white">
+                  <small className="text-[8px] tracking-[0.1em]">{memory.date}</small>
+                  <h3 className="mt-1 mr-10 font-serif text-[21px] leading-[normal] font-normal">
+                    {memory.title}
+                  </h3>
+                  <button
+                    type="button"
+                    aria-label={`Open ${memory.title}`}
+                    className="absolute right-[15px] bottom-[15px] grid size-8 place-items-center rounded-full border border-white/50 text-white"
+                  >
+                    <ArrowIcon />
+                  </button>
+                </div>
+              </article>
+            ))}
+            <button
+              type="button"
+              className="flex min-h-[220px] flex-col items-center justify-center border border-dashed border-sage bg-cream"
+            >
+              <b className="mb-3 grid size-[42px] place-items-center rounded-full bg-pale">
+                <PlusIcon />
+              </b>
+              <strong className="font-serif text-[19px] leading-[normal] font-normal">
+                Add a moment
+              </strong>
+              <small className="mt-1 text-[8px] text-muted">
+                Photo, story, voice, or video
+              </small>
             </button>
           </div>
         </section>
+
         <section
           id="how-it-works"
-          className="story-section"
+          className="grid grid-cols-1 items-center gap-[60px] px-5 py-20 desk:grid-cols-[0.85fr_1.15fr] desk:gap-[9vw] desk:px-[clamp(24px,9vw,140px)] desk:py-[120px]"
           aria-labelledby="story-title"
         >
-          <div className="story-copy">
-            <span className="kicker">MORE THAN A PHOTO</span>
-            <h2>Every picture has a story. <em>Help it remember.</em></h2>
-            <p>
+          <div>
+            <span className={kicker}>MORE THAN A PHOTO</span>
+            <h2 id="story-title" className={`${editorial} mt-[17px] mb-6 text-[54px]`}>
+              Every picture has a story. <em className="font-normal text-peach">Help it remember.</em>
+            </h2>
+            <p className="text-[13px] leading-[1.75] text-muted">
               Add the things a photograph can’t hold: the way she laughed, what he
               always said, the song playing in the kitchen.
             </p>
-            <ol>
-              <li>
-                <b>01</b
-                ><span
-                  ><strong>Capture</strong
-                  ><small>Bring in a photo or everyday moment.</small></span
-                >
-              </li>
-              <li>
-                <b>02</b
-                ><span
-                  ><strong>Tell</strong
-                  ><small>Add voices, notes, places, and people.</small></span
-                >
-              </li>
-              <li>
-                <b>03</b
-                ><span
-                  ><strong>Preserve</strong
-                  ><small>Keep it safe for every chapter ahead.</small></span
-                >
-              </li>
+            <ol className="mt-[35px]">
+              {steps.map(([number, title, detail]) => (
+                <li key={number} className="flex gap-[18px] border-t border-line py-[17px]">
+                  <b className="font-serif text-[14px] leading-[normal] font-normal text-peach italic">
+                    {number}
+                  </b>
+                  <span>
+                    <strong className="block font-serif text-[20px] leading-[normal] font-normal">
+                      {title}
+                    </strong>
+                    <small className="block text-[10px] text-muted">{detail}</small>
+                  </span>
+                </li>
+              ))}
             </ol>
           </div>
-          <div className="story-preview">
-            <article>
+          <div className="relative pr-[45px] pb-[45px] before:absolute before:inset-[45px_0_0_45px] before:bg-pale before:content-['']">
+            <article className="relative bg-paper shadow-[0_25px_70px_#1e2e2829]">
               <img
                 alt="Grandmother sharing a moment with her granddaughter"
-                src="https://images.unsplash.com/photo-1505075288090-14733a88df88?auto=format&amp;fit=crop&amp;w=1200&amp;q=90"
+                src="https://images.unsplash.com/photo-1505075288090-14733a88df88?auto=format&fit=crop&w=1200&q=90"
+                className="h-[325px] object-cover saturate-75"
               />
-              <div>
-                <small>OCTOBER 12, 2021 · AT NANA’S HOUSE</small>
-                <h3>The stories she told us</h3>
-                <p>
+              <div className="px-[30px] py-[25px]">
+                <small className="text-[8px] tracking-[0.1em] text-peach">
+                  OCTOBER 12, 2021 · AT NANA’S HOUSE
+                </small>
+                <h3 className="my-2 font-serif text-[28px] leading-[normal] font-normal">
+                  The stories she told us
+                </h3>
+                <p className="font-serif text-[14px] leading-[1.55] text-muted italic">
                   “Every Sunday, she’d pull the blue chair closer to the window.
                   This was the afternoon she told Mara about the dance hall...”
                 </p>
-                <span className="remembered"
-                  ><b>N</b><b>M</b>
-                  <small>Remembered by Nana &amp; Mara</small>
+                <span className="flex items-center">
+                  <b className="mr-[-5px] grid size-[27px] place-items-center rounded-full border-2 border-paper bg-pale text-[8px]">N</b>
+                  <b className="mr-[-5px] grid size-[27px] place-items-center rounded-full border-2 border-paper bg-pale text-[8px]">M</b>
+                  <small className="ml-[13px] text-[8px] tracking-[0.1em] text-muted">
+                    Remembered by Nana &amp; Mara
+                  </small>
                 </span>
               </div>
             </article>
-            <div className="voice">
-              <button aria-label="Play voice memory">▶</button
-              ><span>||||||||||||||||</span><small>0:42 · Nana’s voice</small>
+            <div className="absolute top-[40%] -right-2 flex w-[235px] items-center gap-[9px] bg-forest p-3 text-white shadow-[0_15px_30px_#14302838]">
+              <button
+                type="button"
+                aria-label="Play voice memory"
+                className="size-[27px] shrink-0 rounded-full text-[8px]"
+              >
+                ▶
+              </button>
+              <span className="text-[8px] opacity-60">||||||||||||||||</span>
+              <small className="text-[7px] text-white opacity-65">0:42 · Nana’s voice</small>
             </div>
           </div>
         </section>
 
-        <section className="future" aria-labelledby="future-title">
-          <div className="future-image">
+        <section
+          className="grid min-h-[670px] grid-cols-1 bg-deep text-white desk:grid-cols-[1.05fr_0.95fr]"
+          aria-labelledby="future-title"
+        >
+          <div className="relative overflow-hidden after:absolute after:inset-0 after:bg-[linear-gradient(90deg,transparent_60%,var(--color-deep))] after:content-['']">
             <img
               alt="A father holding his young daughter"
-              src="https://images.unsplash.com/photo-1717883300138-f1fadd7d04cc?auto=format&amp;fit=crop&amp;w=1200&amp;q=90"
-            /><span>FOR HER · 2040</span>
+              src="https://images.unsplash.com/photo-1717883300138-f1fadd7d04cc?auto=format&fit=crop&w=1200&q=90"
+              className="h-full object-cover saturate-[0.55]"
+            />
+            <span className="absolute bottom-[25px] left-[25px] z-[2] bg-paper px-2.5 py-2 text-[8px] tracking-[0.1em] text-forest">
+              FOR HER · 2040
+            </span>
           </div>
-          <div className="future-copy">
-            <span className="kicker">A GIFT FOR LATER</span>
-            <h2>Keep memories for who they’re becoming.</h2>
-            <p>
+          <div className="max-w-[540px] pt-[95px] pr-[clamp(30px,7vw,100px)] pb-20 pl-[5vw]">
+            <span className={kicker}>A GIFT FOR LATER</span>
+            <h2 id="future-title" className={`${editorial} mt-[17px] mb-6 text-[54px]`}>
+              Keep memories for who they’re becoming.
+            </h2>
+            <p className="text-[13px] leading-[1.75] text-white/63">
               Create a private collection for someone too young to remember today.
               On the date you choose, they’ll receive a world of stories made just
               for them.
             </p>
-            <blockquote>
+            <blockquote className="mt-[38px] mb-7 border-l border-peach pl-[23px] font-serif text-[22px] leading-[1.4] italic">
               “For when you wonder how deeply you were loved from the very
-              beginning.”<small>— Dad, on your fourth birthday</small>
+              beginning.”
+              <small className="mt-3 block font-sans text-[8px] leading-[normal] font-normal tracking-[0.08em] text-white/50 uppercase not-italic">
+                — Dad, on your fourth birthday
+              </small>
             </blockquote>
-            <button className="btn-underlined light">
+            <button
+              type="button"
+              className="inline-flex items-center gap-3.5 border-b border-white/30 py-2 text-[12px] text-white"
+            >
               Create a time capsule
-              <svg viewBox="0 0 20 20" aria-hidden="true">
-                <path d="M4 10h11M11 6l4 4-4 4"></path>
-              </svg>
+              <ArrowIcon />
             </button>
           </div>
         </section>
 
-        <section className="family" id="family" aria-labelledby="roles-title">
-          <div className="center-heading">
-            <span className="kicker">YOUR PEOPLE, YOUR WAY</span>
-            <h2>It takes a family to tell a life.</h2>
-            <p>
+        <section
+          className="bg-paper px-5 py-20 desk:px-[clamp(24px,7vw,108px)] desk:py-[110px]"
+          id="family"
+          aria-labelledby="roles-title"
+        >
+          <div className="mx-auto mb-[55px] max-w-[680px] text-center">
+            <span className={kicker}>YOUR PEOPLE, YOUR WAY</span>
+            <h2 id="roles-title" className={`${editorial} mt-[13px] text-[54px]`}>
+              It takes a family to tell a life.
+            </h2>
+            <p className="mx-auto mt-[18px] max-w-[480px] text-[13px] leading-[1.75] text-muted">
               Invite the people who hold a piece of the story. Everyone has a
               place, and you’re always in control.
             </p>
           </div>
-          <div className="roles">
-            <article>
-              <b className="role role-0">O</b><small>01</small>
-              <h3>Owner</h3>
-              <p>Keeps the archive and decides who’s invited.</p>
-            </article>
-            <article>
-              <b className="role role-1">F</b><small>02</small>
-              <h3>Family member</h3>
-              <p>Adds memories, stories, and shared chapters.</p>
-            </article>
-            <article>
-              <b className="role role-2">C</b><small>03</small>
-              <h3>Contributor</h3>
-              <p>Helps fill in the moments they remember.</p>
-            </article>
-            <article>
-              <b className="role role-3">V</b><small>04</small>
-              <h3>Viewer</h3>
-              <p>Enjoys the archive, without changing a thing.</p>
-            </article>
+          <div className="grid grid-cols-1 border border-b-0 border-line desk:grid-cols-4 desk:border-b">
+            {roles.map(([initial, number, title, detail, badge]) => (
+              <article
+                key={title}
+                className="relative min-h-[250px] border-b border-line p-[27px] desk:border-r desk:border-b-0"
+              >
+                <b className={`grid size-[50px] place-items-center rounded-full font-serif text-[21px] leading-[normal] font-normal ${badge}`}>
+                  {initial}
+                </b>
+                <small className="absolute top-7 right-[27px] font-serif text-[12px] leading-[normal] text-sage italic">
+                  {number}
+                </small>
+                <h3 className="mt-[45px] mb-2 font-serif text-[22px] leading-[normal] font-normal">
+                  {title}
+                </h3>
+                <p className="text-[10px] leading-[1.65] text-muted">{detail}</p>
+              </article>
+            ))}
           </div>
         </section>
 
-        <section className="contact" id="contact" aria-labelledby="contact-title">
-          <div className="contact-intro">
-            <span className="kicker">WE’RE HERE TO HELP</span>
-            <h2>Have a question?<br /><em>Let’s talk.</em></h2>
-            <p>
+        <section
+          className="grid grid-cols-1 items-center gap-[9vw] px-5 py-20 desk:grid-cols-[0.82fr_1.18fr] desk:px-[clamp(24px,8vw,125px)] desk:py-[120px]"
+          id="contact"
+          aria-labelledby="contact-title"
+        >
+          <div>
+            <span className={kicker}>WE’RE HERE TO HELP</span>
+            <h2 id="contact-title" className={`${editorial} mt-[17px] mb-6 text-[54px]`}>
+              Have a question?<br /><em className="font-normal text-peach">Let’s talk.</em>
+            </h2>
+            <p className="max-w-[480px] text-[13px] leading-[1.75] text-muted">
               Whether you’re thinking about starting an archive, bringing your
               family in, or preserving something especially meaningful, we’d love
               to hear from you.
             </p>
-            <div className="contact-details">
+            <div className="my-[35px] grid grid-cols-2 gap-5 border-y border-line py-[22px]">
               <span>
-                <small>EMAIL US</small>
-                <strong>hello@stillarchive.com</strong>
+                <small className="mb-1.5 block text-[7px] tracking-[0.12em] text-peach">EMAIL US</small>
+                <strong className="block font-serif text-[15px] leading-[normal] font-normal">
+                  hello@stillarchive.com
+                </strong>
               </span>
               <span>
-                <small>RESPONSE TIME</small>
-                <strong>Usually within two working days</strong>
+                <small className="mb-1.5 block text-[7px] tracking-[0.12em] text-peach">RESPONSE TIME</small>
+                <strong className="block font-serif text-[15px] leading-[normal] font-normal">
+                  Usually within two working days
+                </strong>
               </span>
             </div>
-            <div className="privacy-note">
-              <span className="brand-icon" aria-hidden="true">
-                <i></i><i></i><i></i>
-              </span>
-              <p>
+            <div className="flex items-center gap-[13px] text-muted">
+              <BrandIcon />
+              <p className="max-w-[330px] text-[9px] leading-[1.5]">
                 Your stories stay yours. We’ll only use your details to reply to
                 this message.
               </p>
             </div>
           </div>
-          <div className="form-wrap">
-            <form>
-              <div className="form-row">
+          <div className="flex min-h-[525px] bg-paper p-[clamp(25px,4vw,50px)] shadow-[0_20px_60px_#1e2e2817]">
+            <form className="flex w-full flex-col gap-6">
+              <div className="grid grid-cols-2 gap-5">
                 <label>
-                  <span>Your name</span>
+                  <span className="mb-2 block text-[9px] tracking-[0.08em] uppercase">Your name</span>
                   <input
+                    className={fieldClass}
                     placeholder="Anna Miller"
-                    required=""
+                    required
                     type="text"
                     name="name"
                   />
                 </label>
                 <label>
-                  <span>Email address</span>
+                  <span className="mb-2 block text-[9px] tracking-[0.08em] uppercase">Email address</span>
                   <input
+                    className={fieldClass}
                     placeholder="anna@example.com"
-                    required=""
+                    required
                     type="email"
                     name="email"
-                /></label>
+                  />
+                </label>
               </div>
-              <label
-                ><span>What can we help with?</span
-                ><select name="topic" required="">
-                  <option value="" disabled="" selected="">Choose a topic</option>
+              <label>
+                <span className="mb-2 block text-[9px] tracking-[0.08em] uppercase">
+                  What can we help with?
+                </span>
+                <select className={fieldClass} name="topic" required defaultValue="">
+                  <option value="" disabled>Choose a topic</option>
                   <option>Starting an archive</option>
                   <option>Inviting my family</option>
                   <option>Privacy and preservation</option>
                   <option>Something else</option>
-                </select></label
-              ><label
-                ><span>Your message</span
-                ><textarea
+                </select>
+              </label>
+              <label>
+                <span className="mb-2 block text-[9px] tracking-[0.08em] uppercase">Your message</span>
+                <textarea
+                  className={fieldClass}
                   name="message"
                   rows="6"
                   placeholder="Tell us what’s on your mind..."
-                  required=""
-                ></textarea>
+                  required
+                />
               </label>
-              <div className="form-submit">
-                <small
-                  >By sending this form, you agree to our privacy policy.</small
-                ><button className="custom-button custom-button-primary" type="submit">
+              <div className="mt-auto flex flex-col items-start gap-5 desk:flex-row desk:items-center desk:justify-between">
+                <small className="max-w-[220px] text-[8px] leading-[1.5] text-muted">
+                  By sending this form, you agree to our privacy policy.
+                </small>
+                <button type="submit" className={primaryButton}>
                   Send message
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M4 10h11M11 6l4 4-4 4"></path>
-                  </svg>
+                  <ArrowIcon />
                 </button>
               </div>
             </form>
           </div>
         </section>
-        <section className="closing" aria-labelledby="closing-title">
-          <span className="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span
-          ><span className="kicker">YOUR STORY STARTS HERE</span>
-          <h2>Some day, these will be<br /><em>the good old days.</em></h2>
-          <p>Start with one photo. Add the story only you can tell.</p>
-          <button className="custom-button">
-            <svg viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M10 4v12M4 10h12"></path>
-            </svg>
-            Add your first memory</button
-          ><small>Private by default · Invite family when you’re ready</small>
+
+        <section
+          className="flex min-h-[510px] flex-col items-center justify-center bg-forest px-6 py-20 text-center text-white"
+          aria-labelledby="closing-title"
+        >
+          <BrandIcon className="mb-[22px]" />
+          <span className={kicker}>YOUR STORY STARTS HERE</span>
+          <h2 id="closing-title" className={`${editorial} my-[18px] text-[45px] desk:text-[59px]`}>
+            Some day, these will be<br /><em className="font-normal text-peach">the good old days.</em>
+          </h2>
+          <p className="text-[12px] text-white/65">
+            Start with one photo. Add the story only you can tell.
+          </p>
+          <button
+            type="button"
+            className="mt-4 mb-3 inline-flex items-center gap-2 rounded-[40px] bg-cream px-[21px] py-3.5 text-[11px] text-forest"
+          >
+            <PlusIcon />
+            Add your first memory
+          </button>
+          <small className="text-[8px] text-white/45">
+            Private by default · Invite family when you’re ready
+          </small>
         </section>
       </main>
-      <footer class="footer" aria-labelledby="footer-title">
-        <div class="brand">
-          <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span
-          ><span>still</span>
+
+      <footer
+        className="grid grid-cols-1 items-center justify-items-center gap-[35px] bg-deep px-[clamp(24px,7vw,108px)] py-7 text-center text-white/55 desk:grid-cols-[1fr_1fr_auto_auto] desk:justify-items-stretch desk:text-left"
+        aria-labelledby="footer-title"
+      >
+        <div className="inline-flex items-center gap-2.5 text-white">
+          <BrandIcon />
+          <span className="font-serif text-[26px] leading-[normal] font-normal">still</span>
         </div>
-        <p>For the stories that make us who we are.</p>
-        <nav>
-          <button>Privacy</button><button>Terms</button><button>Contact</button>
+        <p className="text-[8px]">For the stories that make us who we are.</p>
+        <nav className="flex gap-[18px]">
+          <button type="button" className="text-[12px]">Privacy</button>
+          <button type="button" className="text-[12px]">Terms</button>
+          <button type="button" className="text-[12px]">Contact</button>
         </nav>
-        <span>© 2026 Still Archive</span>
+        <span className="text-[8px]">© 2026 Still Archive</span>
       </footer>
     </>
   );
