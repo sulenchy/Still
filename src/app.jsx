@@ -15,8 +15,17 @@ import { BrandIcon } from './components/brand-icon.jsx';
 import { PlusIcon } from './components/plus-icon.jsx';
 import { ArrowIcon } from './components/arrow-icon.jsx';
 import { Footer } from './components/footer.jsx';
+import { Gallery } from './components/gallery.jsx';
 
 const App = () => {
+
+  const handleExloreArchiveClick = () => {
+    const gallerySection = document.getElementById('gallery');
+    if (gallerySection) {
+      gallerySection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <SkipLink />
@@ -25,7 +34,7 @@ const App = () => {
       <main id="main-content">
         <section
           className="grid min-h-[820px] grid-cols-1 items-center gap-10 px-[clamp(24px,7vw,108px)] pt-10 pb-[90px] desk:grid-cols-[0.88fr_1.12fr] desk:gap-[6vw]"
-          aria-labelledby="hero-title"
+          aria-controls="hero-title"
         >
           <div className="flex max-w-[700px] flex-col items-center gap-6 desk:max-w-[600px] desk:items-stretch">
             <span className={eyebrow}>For all the days worth remembering</span>
@@ -43,10 +52,10 @@ const App = () => {
                 <PlusIcon />
                 Add your first memory
               </button>
-              <a className="inline-flex items-center gap-3.5 border-b border-line py-2 text-[12px]">
+              <button className="inline-flex items-center gap-3.5 border-b border-line py-2 text-[12px]" onClick={handleExloreArchiveClick}>
                 Explore the archive
                 <ArrowIcon />
-              </a>
+              </button>
             </div>
           </div>
 
@@ -116,9 +125,8 @@ const App = () => {
               <button
                 key={filter}
                 type="button"
-                className={`shrink-0 rounded-[30px] px-[13px] py-2 text-[10px] ${
-                  filter === "All memories" ? "bg-forest text-white" : "text-muted"
-                }`}
+                className={`shrink-0 rounded-[30px] px-[13px] py-2 text-[10px] ${filter === "All memories" ? "bg-forest text-white" : "text-muted"
+                  }`}
               >
                 {filter}
               </button>
@@ -169,6 +177,8 @@ const App = () => {
             </button>
           </div>
         </section>
+
+        <Gallery />
 
         <section
           id="how-it-works"

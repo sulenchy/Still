@@ -5,6 +5,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1611890279484-2f70df6730fe?auto=format&fit=crop&w=1000&q=86",
     date: "July 2023",
     title: "The summer we stayed out late",
+    people: ["Mara", "Leo"],
   },
   {
     layout: "col-span-2",
@@ -12,6 +13,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1784013225972-34a4e810e825?auto=format&fit=crop&w=1200&q=86",
     date: "April 2024",
     title: "Sunday at Nana’s",
+    people: ["Mara", "Leo", "Nana"],
   },
   {
     layout: "",
@@ -19,6 +21,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1505075288090-14733a88df88?auto=format&fit=crop&w=900&q=86",
     date: "October 2021",
     title: "Her favorite stories",
+    people: ["Mara", "Nana"],
   },
   {
     layout: "",
@@ -26,6 +29,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1628676306092-1238ef1dc851?auto=format&fit=crop&w=900&q=86",
     date: "June 2022",
     title: "Tiny explorer",
+    people: ["Leo"],
   },
   {
     layout: "col-span-2",
@@ -33,6 +37,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1681311311317-a0561a8eef74?auto=format&fit=crop&w=1200&q=86",
     date: "May 2024",
     title: "Picnic weather",
+    people: ["Mara", "Leo", "Nana"],
   },
   {
     layout: "row-span-2",
@@ -40,6 +45,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1717883300138-f1fadd7d04cc?auto=format&fit=crop&w=900&q=86",
     date: "August 2023",
     title: "Always up here",
+    people: ["Mara", "Leo"],
   },
 ];
 
