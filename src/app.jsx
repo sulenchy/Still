@@ -9,6 +9,7 @@ import {
   strokeIcon,
 } from './constants/class-names.js';
 import { filters, memories, roles, steps } from './constants/data.js';
+import { SkipLink } from './components/skip-link.jsx';
 
 function BrandIcon({ className = "" }) {
   return (
@@ -42,6 +43,7 @@ function ArrowIcon() {
 const App = () => {
   return (
     <>
+      <SkipLink />
       <header className="relative z-20 flex h-[70px] items-center justify-between px-[5vw] desk:h-auto desk:min-h-[82px]">
         <a href="/" className="inline-flex items-center gap-2.5" aria-label="Still home">
           <BrandIcon />
