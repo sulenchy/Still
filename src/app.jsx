@@ -10,19 +10,10 @@ import {
 } from './constants/class-names.js';
 import { filters, memories, roles, steps } from './constants/data.js';
 import { SkipLink } from './components/skip-link.jsx';
+import { Header } from './components/header.jsx';
+import { BrandIcon } from './components/brand-icon.jsx';
 
-function BrandIcon({ className = "" }) {
-  return (
-    <span
-      className={`inline-flex h-7 w-[27px] items-end justify-center gap-0.5 ${className}`}
-      aria-hidden="true"
-    >
-      <i className={`${bar} h-[17px] -rotate-[23deg]`} />
-      <i className={`${bar} h-[25px]`} />
-      <i className={`${bar} h-[17px] rotate-[23deg]`} />
-    </span>
-  );
-}
+
 
 function PlusIcon() {
   return (
@@ -44,41 +35,7 @@ const App = () => {
   return (
     <>
       <SkipLink />
-      <header className="relative z-20 flex h-[70px] items-center justify-between px-[5vw] desk:h-auto desk:min-h-[82px]">
-        <a href="/" className="inline-flex items-center gap-2.5" aria-label="Still home">
-          <BrandIcon />
-          <span className="font-serif text-[26px] leading-[normal] font-normal">Still</span>
-        </a>
-        <input
-          type="checkbox"
-          id="menu-toggle"
-          className="peer sr-only"
-          aria-label="Toggle menu"
-        />
-        <label
-          htmlFor="menu-toggle"
-          className="block size-9 cursor-pointer desk:hidden"
-          aria-label="Toggle menu"
-        >
-          <i className="mx-auto my-[5px] block h-px w-[18px] bg-ink" />
-          <i className="mx-auto my-[5px] block h-px w-[18px] bg-ink" />
-        </label>
-        <nav
-          className="hidden items-center gap-8 desk:flex max-desk:peer-checked:absolute max-desk:peer-checked:top-[65px] max-desk:peer-checked:right-[18px] max-desk:peer-checked:z-50 max-desk:peer-checked:flex max-desk:peer-checked:flex-col max-desk:peer-checked:items-stretch max-desk:peer-checked:bg-paper max-desk:peer-checked:p-4 max-desk:peer-checked:shadow-[0_15px_35px_#1e2e28]"
-          aria-label="Primary navigation"
-        >
-          <a href="#gallery" className="text-sm hover:underline">Memories</a>
-          <a href="#how-it-works" className="text-sm hover:underline">How it works</a>
-          <a href="#family" className="text-sm hover:underline">For families</a>
-          <a href="#contact" className="text-sm hover:underline">Contact</a>
-        </nav>
-        <div className="hidden items-center gap-5 desk:flex">
-          <a href="#" className="text-sm">Sign in</a>
-          <a href="#gallery" className={primaryButton}>
-            Start your archive
-          </a>
-        </div>
-      </header>
+      <Header />
 
       <main id="main-content">
         <section
@@ -503,7 +460,6 @@ const App = () => {
       >
         <div className="inline-flex items-center gap-2.5 text-white">
           <BrandIcon />
-          <span className="font-serif text-[26px] leading-[normal] font-normal">still</span>
         </div>
         <p className="text-[8px]">For the stories that make us who we are.</p>
         <nav className="flex gap-[18px]">
