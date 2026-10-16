@@ -5,7 +5,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1611890279484-2f70df6730fe?auto=format&fit=crop&w=1000&q=86",
     date: "July 2023",
     title: "The summer we stayed out late",
-    people: ["Mara", "Leo"],
+    people: ['Family', "Mara", "Leo"],
   },
   {
     layout: "col-span-2",
@@ -13,7 +13,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1784013225972-34a4e810e825?auto=format&fit=crop&w=1200&q=86",
     date: "April 2024",
     title: "Sunday at Nana’s",
-    people: ["Mara", "Leo", "Nana"],
+    people: ['Family', "Mara", "Leo", "Nana"],
   },
   {
     layout: "",
@@ -21,7 +21,7 @@ export const memories = [
     src: "https://images.unsplash.com/photo-1505075288090-14733a88df88?auto=format&fit=crop&w=900&q=86",
     date: "October 2021",
     title: "Her favorite stories",
-    people: ["Mara", "Nana"],
+    people: ['Family', "Mara", "Nana"],
   },
   {
     layout: "",
@@ -70,3 +70,5 @@ export const links = [
   ['#family', 'For families'],
   ['#contact', 'Contact'],
 ];
+
+export const Topics = ["Starting an archive", "Inviting my family", "Privacy and preservation", "Something else"];
