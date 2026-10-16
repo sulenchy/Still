@@ -1,14 +1,11 @@
 import './styles.css';
 import {
-  bar,
   editorial,
-  eyebrow,
   fieldClass,
   kicker,
   primaryButton,
-  strokeIcon,
 } from './constants/class-names.js';
-import { filters, memories, roles, steps } from './constants/data.js';
+import { roles, steps } from './constants/data.js';
 import { SkipLink } from './components/skip-link.jsx';
 import { Header } from './components/header.jsx';
 import { BrandIcon } from './components/brand-icon.jsx';
