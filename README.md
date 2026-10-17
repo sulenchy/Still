@@ -3,11 +3,12 @@
 [![Live Demo](https://img.shields.io/badge/Demo-Live%20Site-183e32?style=for-the-badge&logo=githubpages&logoColor=white)](https://sulenchy.github.io/still/)
 [![Figma Prototype](https://img.shields.io/badge/Figma-Prototype-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://forum-remake-98457982.figma.site/)
 [![Accessibility](https://img.shields.io/badge/WCAG%202.1-AAA%20Ready-success?style=for-the-badge&logo=w3c&logoColor=white)](#-web-accessibility-in-practice-a11y-first-engineering)
-[![Zero JS](https://img.shields.io/badge/JavaScript-Zero%20Dependency-brightgreen?style=for-the-badge)](https://sulenchy.github.io/PMem/)
+[![React](https://img.shields.io/badge/React-19-149eca?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 > **"Hold on to the little things."**  
-> An editorial, living archive for family memories, designed to demonstrate how **modern web accessibility (a11y)** and visual craftsmanship can be achieved using pure, semantic **HTML5** and **CSS3** — with **zero JavaScript**.
+> An editorial, living archive for family memories. The landing page is a **React** application styled with **Tailwind CSS**. The original semantic **HTML** and **CSS** page is preserved in [`old-template`](old-template/).
 
 ---
 
@@ -18,6 +19,7 @@
 - ♿ **[Web Accessibility Architecture](#-web-accessibility-in-practice-a11y-first-engineering)**
 - 🚀 **[Quick Start & Preview](#-quick-start)**
 - 📐 **[Design System & Tokens](#-design-system--tokens)**
+- 🗂️ **[Original HTML & CSS landing](old-template/)**
 
 ---
 
@@ -25,162 +27,102 @@
 
 Most photo albums today are either chaotic camera rolls or generic cloud drives. **Still** takes an editorial approach: turning everyday family moments, forgotten voices, and intimate notes into a considered, timeless collection.
 
-Beyond its visual storytelling, **Still serves as a real-world reference implementation for modern web accessibility**. It proves that modern, elegant, and interactive web experiences do not require heavy JavaScript bundles or complex frameworks to be accessible, fluid, and delightful for all users.
+The landing page has been rebuilt as a React application. Layout, color, and type come from Tailwind CSS, with the palette defined as theme tokens in `src/styles.css`. Page sections live in `src/components`, and shared copy and class strings live in `src/constants`.
+
+The earlier static landing page — `index.html` and `styles.css`, with no JavaScript — has moved to `old-template/`. That folder is the reference for the original markup and styles. The app in `src/` is the page to run and change.
+
+Interactive behavior that used to be HTML and CSS alone is now React state:
+
+- The mobile menu opens from a button click, and closes on a link click or Escape.
+- The gallery filter shows memories for the selected person.
+- The contact form checks the name, email, topic, and message before it accepts a submission.
 
 ---
 
 ## ♿ Web Accessibility in Practice (a11y-First Engineering)
 
-Web accessibility is often treated as an afterthought or outsourced to third-party overlay widgets. **Still demonstrates how to bake accessibility directly into semantic HTML and CSS from day one**, adhering to [WCAG 2.1 AA/AAA guidelines](https://www.w3.org/WAI/standards-guidelines/wcag/).
+Web accessibility is built into the markup and interaction, following [WCAG 2.1 AA/AAA guidelines](https://www.w3.org/WAI/standards-guidelines/wcag/). The same landmarks, names, and contrast carry over from the original page. React supplies the behavior that a checkbox hack used to provide.
 
 ### 1. Semantic Landmark Architecture
-Screen reader users navigate web pages primarily through landmarks and headings. Still implements an unambiguous document structure:
+Screen reader users navigate web pages primarily through landmarks and headings. Still keeps an unambiguous document structure:
 
-- **Landmark Elements**: Full utilization of `<header>`, `<main id="main-content">`, `<section>`, `<article>`, `<figure>`, `<figcaption>`, and `<footer>`.
+- **Landmark Elements**: `<header>`, `<main id="main-content">`, `<section>`, `<article>`, `<figure>`, `<figcaption>`, and `<footer>`.
 - **Heading Hierarchy**: Strict `<h1>` → `<h2>` → `<h3>` hierarchy.
-- **Section Labeling with `aria-labelledby`**: Every major section links directly to its heading title, allowing assistive technologies to announce clear context in screen reader rotor navigation:
+- **Section Labeling with `aria-labelledby`**: Every major section points at its heading.
 
-```html
-<section class="story-section" id="how-it-works" aria-labelledby="story-title">
-  <div class="story-copy">
-    <span class="kicker">MORE THAN A PHOTO</span>
-    <h2 id="story-title">Every picture has a story. <em>Help it remember.</em></h2>
-    ...
-  </div>
+```jsx
+<section id="how-it-works" aria-labelledby="story-title">
+  <h2 id="story-title">
+    Every picture has a story. <em>Help it remember.</em>
+  </h2>
 </section>
 ```
 
 ### 2. Skip to Main Content (Bypass Blocks)
-Keyboard and switch-device users often have to tab through repetitive header links on every page. Still includes an accessible **Skip Link**:
-
-- Positioned off-screen by default.
-- Transitions cleanly into view when focused via `Tab`.
-- Jumps directly to `<main id="main-content">`.
-
-```html
-<!-- At the top of <body> -->
-<a href="#main-content" class="skip-link">Skip to main content</a>
-```
-
-```css
-.skip-link {
-  position: absolute;
-  top: -999px;
-  left: 20px;
-  background: var(--forest);
-  color: var(--white);
-  padding: 12px 20px;
-  border-radius: 8px;
-  z-index: 9999;
-  transition: top 0.2s ease-in-out;
-}
-
-.skip-link:focus {
-  top: 20px;
-  outline: 2px solid var(--peach);
-  outline-offset: 3px;
-}
-```
+Keyboard and switch-device users often have to tab through repetitive header links. `SkipLink` sits off-screen until it receives focus, then moves focus to `<main id="main-content">`.
 
 ### 3. Accessible Name Computation & Decorative Icon Isolation
-Icon-only controls and decorative SVGs frequently break screen reader usability. Still implements two essential patterns:
+Icon-only controls carry an explicit name. Decorative icons are hidden from assistive technology.
 
-- **Explicit `aria-label` for Icon-Only Buttons**: Gives assistive devices explicit action names instead of silence:
-  ```html
-  <button aria-label="Open The summer we stayed out late">
-    <svg viewBox="0 0 20 20" aria-hidden="true">
-      <path d="M4 10h11M11 6l4 4-4 4"></path>
-    </svg>
-  </button>
-  ```
-- **`aria-hidden="true"` on Decorative Graphics**: Prevents screen readers from announcing unnecessary SVG vector paths or decorative brand glyphs.
-
-### 4. Human-Centered Alternative Text
-Photographs are central to this project. Instead of generic alt tags like `alt="image"` or filename dumps, every image contains descriptive, narrative alt text:
-
-```html
-<figure class="main-photo">
-  <img
-    src="public/images/collage-big-photo.avif"
-    alt="Family spending time together outdoors"
-  />
-  <figcaption>
-    <span>Lake District</span><span>Summer ’24</span>
-  </figcaption>
-</figure>
+```jsx
+<button type="button" aria-label={`Open ${memory.title}`}>
+  <ArrowIcon />
+</button>
 ```
 
+`ArrowIcon` and `PlusIcon` set `aria-hidden="true"` on the SVG. The brand mark does the same on its decorative bars, while the home link is named with `aria-label="Still home"`.
+
+### 4. Human-Centered Alternative Text
+Photographs use narrative `alt` text. Gallery copy, including each image `alt`, lives with the memory in `src/constants/data.js`.
+
 ### 5. Visible Focus Rings (`:focus-visible`)
-To support keyboard navigators without compromising aesthetics for mouse users, Still utilizes `:focus-visible` with high-contrast outlines:
+Keyboard focus uses a high-contrast outline. Form fields move that cue to the bottom border so the editorial underline stays intact.
 
 ```css
 :focus-visible {
-  outline: 2px solid var(--forest);
+  outline: 2px solid var(--color-forest);
   outline-offset: 3px;
-}
-
-.form-wrap input:focus-visible,
-.form-wrap select:focus-visible,
-.form-wrap textarea:focus-visible {
-  border-bottom-color: var(--forest);
-  box-shadow: 0 2px 0 0 var(--forest);
-  outline: none;
 }
 ```
 
 ### 6. Motor & Touch Accessibility (WCAG 2.5.5 / 2.5.8)
-All interactive buttons and navigation triggers meet or exceed the **44 × 44px minimum touch target size**, preventing misclicks on touchscreens and supporting users with motor impairments:
-
-```css
-.button {
-  min-height: 44px;
-  padding: 0 20px;
-  ...
-}
-```
+Primary actions use `min-h-11` (44px) so the touch target meets the minimum size.
 
 ### 7. Vestibular Disorder & Reduced Motion Support
-Smooth scrolling and heavy animations can cause discomfort or disorientation for users with motion sensitivity. Still honors user system preferences via `prefers-reduced-motion`:
-
-```css
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-```
+`src/styles.css` honors `prefers-reduced-motion: reduce` by collapsing animation, transition, and smooth-scroll duration.
 
 ### 8. High Color Contrast & Readability
-- Deep ink (`#21342d`) and forest green (`#102e26`) text set against warm paper (`#fffdf7`) and cream (`#f7f2e8`).
-- Contrast ratios exceed **10:1**, comfortably exceeding WCAG AAA requirements (7:1 for regular text, 4.5:1 for large text).
-- Avoids conveying information solely through color (e.g. role badges pair distinctive letter initials with descriptive text).
+- Deep ink (`#21342d`) and forest green (`#102e26`) sit on warm paper (`#fffdf7`) and cream (`#f7f2e8`).
+- Contrast ratios exceed **10:1**, above the WCAG AAA thresholds (7:1 for regular text, 4.5:1 for large text).
+- Role badges pair a letter initial with the role name, so color is not the only signal.
 
-### 9. Zero-JS Mobile Navigation Drawer
-The mobile navigation menu is implemented using an accessible CSS checkbox toggle pattern (`#menu-toggle` with `label[for="menu-toggle"]` and `:checked ~ .nav`). It functions 100% reliably even when JavaScript is disabled, blocked, or fails to load.
+### 9. Mobile Navigation
+Below the `desk` breakpoint (981px), the header shows a menu button. It toggles the navigation with React state, exposes `aria-expanded`, and points at the nav with `aria-controls`. Escape and choosing a link both close the menu. At desktop width the links stay in the header and the button is hidden.
+
+The original checkbox-and-label menu remains in `old-template/` for the no-JavaScript version.
 
 ---
 
 ## 🎨 Design System & Tokens
 
-Still employs an editorial palette inspired by vintage family photo albums and botanical tones:
+The palette is defined in the Tailwind `@theme` block in `src/styles.css`. Utilities use the token name: `bg-forest`, `text-ink`, `font-serif`, `border-line`.
 
-| Token | Value | Preview / Usage |
+| Token | Value | Usage |
 | :--- | :--- | :--- |
-| `--forest` | `#183e32` | Primary buttons, active states, brand tone |
-| `--deep` | `#102e26` | Deep accents, dark contrast backgrounds |
-| `--ink` | `#21342d` | Primary body typography (high contrast) |
-| `--paper` | `#fffdf7` | Main canvas background |
-| `--cream` | `#f7f2e8` | Card background, warm containers |
-| `--sage` | `#9eb7a5` | Soft borders and natural accents |
-| `--peach` | `#e7a486` | Warm interactive highlights, focus rings |
-| `--serif` | `"Instrument Serif", Georgia, serif` | Editorial headlines & titles |
-| `--sans` | `"DM Sans", Arial, sans-serif` | Clean, legible body text |
+| `--color-forest` | `#183e32` | Primary buttons, active states, brand tone |
+| `--color-deep` | `#102e26` | Dark sections, footer |
+| `--color-ink` | `#21342d` | Primary text |
+| `--color-paper` | `#fffdf7` | Page background |
+| `--color-cream` | `#f7f2e8` | Warm containers |
+| `--color-sage` | `#9eb7a5` | Soft borders and accents |
+| `--color-peach` | `#e7a486` | Highlights and emphasis |
+| `--color-pale` | `#dbe5d9` | Quiet fills |
+| `--color-beige` | `#f1d5a5` | Notes and cards |
+| `--font-serif` | `"Instrument Serif", Georgia, serif` | Headlines |
+| `--font-sans` | `"DM Sans", Arial, sans-serif` | Body text |
+| `--breakpoint-desk` | `981px` | Desktop layout (`desk:`) |
+
+The original custom properties (`--forest`, `--ink`, and the rest) still live in `old-template/styles.css`.
 
 ---
 
@@ -188,39 +130,50 @@ Still employs an editorial palette inspired by vintage family photo albums and b
 
 ```text
 Still/
-├── index.html              # Semantic, accessible HTML5 single-page archive
-├── styles.css              # Vanilla CSS3 styles, CSS variables, responsive grid
-├── README.md               # Documentation and accessibility showcase
+├── index.html                 # Vite entry shell (#root)
+├── package.json
+├── pnpm-lock.yaml
+├── vite.config.js             # React and Tailwind Vite plugins
 ├── public/
-│   └── images/             # Modern AVIF compressed imagery
-│       ├── collage-big-photo.avif
-│       ├── collage-small-photo.avif
-│       └── family-main.avif
-└── .github/
-    └── workflows/
-        └── static.yml      # Automated GitHub Pages static deployment
+│   └── images/                # AVIF imagery used by the app
+├── src/
+│   ├── main.jsx               # React root
+│   ├── app.jsx                # Page composition
+│   ├── styles.css             # Tailwind theme and base rules
+│   ├── components/            # Header, hero, gallery, contact, footer
+│   └── constants/             # Class strings and page data
+└── old-template/              # Original HTML and CSS landing page
+    ├── index.html
+    ├── styles.css
+    ├── public/images/
+    └── .github/workflows/     # Static GitHub Pages workflow for that page
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-Because Still has **zero dependencies** and requires **no build step**, you can preview and run it immediately:
+The app uses [pnpm](https://pnpm.io/). From the project root:
 
-### Option 1: Open Directly
-Double-click `index.html` in your file manager to open it in any modern web browser.
+```bash
+pnpm install
+pnpm dev
+```
 
-### Option 2: Local Static Server (Recommended)
-Using VS Code:
-Right-click `index.html` and select **"Open with Live Server"**.
+Vite serves the React landing page at **`http://localhost:5173`**.
 
-Visit: **`http://localhost:8080`**
+```bash
+pnpm build     # production build in dist/
+pnpm preview   # serve the production build
+```
+
+### Original HTML and CSS page
+
+`old-template/` has no build step. Open `old-template/index.html` in a browser, or serve that folder with any static server. Its images are in `old-template/public/images/`.
 
 ---
 
 ## 🧪 Accessibility Testing Checklist
-
-You can verify Still's accessibility implementation using the following tools and techniques:
 
 - [x] **Keyboard Navigation**: Press <kbd>Tab</kbd> to test skip-link activation, link focus, form field focus, and button triggering via <kbd>Enter</kbd> / <kbd>Space</kbd>.
 - [x] **Screen Readers**:
@@ -236,7 +189,7 @@ You can verify Still's accessibility implementation using the following tools an
 
 ## 🤝 Contributing
 
-Contributions that further improve accessibility, add new micro-interactions, or enhance performance are warmly welcomed!
+Contributions that further improve accessibility, add new interactions, or sharpen the React and Tailwind landing page are welcome.
 
 1. Fork the project
 2. Create your feature branch (`git checkout -b feature/a11y-enhancement`)
