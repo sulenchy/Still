@@ -47,7 +47,7 @@ export const Gallery = () => {
           <button
             key={filter}
             type="button"
-            className={`shrink-0 rounded-[30px] px-[13px] py-2 text-[10px] ${filter === "All memories" ? "bg-forest text-white" : "text-muted"
+            className={`shrink-0 rounded-[30px] px-[13px] py-2 text-[10px] ${filter === selectedFilter ? "bg-forest text-white" : "text-muted"
               }`}
             onClick={() => handleFilterClick(filter)}
           >

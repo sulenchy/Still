@@ -2,35 +2,26 @@ name: Render CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-        # Removing the automation cache step temporarily to ensure zero interference
+      - name: Set up pnpm and Node.js
+        uses: pnpm/setup@v3
+        with:
+          version: 11.8.0
+          runtime: node@22
+          cache: true
+          require-lockfile: true
 
-    # Use native Corepack to install and match your exact pnpm version
-    - name: Enable Corepack & Install pnpm
-      run: |
-        corepack enable
-        corepack prepare pnpm@latest --activate
+      - name: Verify build
+        run: pnpm run build
 
-    - name: Install Dependencies
-      run: pnpm install --frozen-lockfile
-
-    - name: Verify Build Works
-      run: pnpm run build
-
-    - name: Trigger Render Deploy Hook
-      if: success()
-      run: |
-        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+      - name: Trigger Render deploy
+        run: curl --fail --silent --show-error --request POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
