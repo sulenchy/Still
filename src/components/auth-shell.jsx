@@ -1,62 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { editorial, kicker, primaryButton } from '../constants/class-names';
+import { useEffect, useRef } from 'react';
+import { editorial, kicker } from '../constants/class-names';
 import { BrandIcon } from './brand-icon.jsx';
 import { SkipLink } from './skip-link.jsx';
+import { authFormClass } from '../constants/class-names';
 
-export const authFormClass = 'flex w-full flex-col gap-6';
 
-export const authSubmitClass = `${primaryButton} auth-submit w-full transition-colors duration-200 hover:bg-deep disabled:cursor-wait disabled:opacity-60 desk:ml-auto desk:w-auto`;
-
-export function isEmailAddress(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
-
-export function firstErrorId(errors, fields) {
-  const match = fields.find(([key]) => errors[key]);
-  return match ? match[1] : '';
-}
-
-export function useQueuedFocus() {
-  const pendingId = useRef('');
-
-  useEffect(() => {
-    if (!pendingId.current) return undefined;
-    const id = pendingId.current;
-    pendingId.current = '';
-    document.getElementById(id)?.focus();
-    return undefined;
-  });
-
-  return (id) => {
-    pendingId.current = id;
-  };
-}
-
-export function usePreviewSubmit() {
-  const [status, setStatus] = useState('idle');
-  const [liveMessage, setLiveMessage] = useState('');
-  const timer = useRef(0);
-  const running = useRef(false);
-
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const start = (message, onDone) => {
-    if (running.current) return;
-    running.current = true;
-    setStatus('submitting');
-    setLiveMessage(message);
-    timer.current = window.setTimeout(() => {
-      running.current = false;
-      setStatus('idle');
-      setLiveMessage('');
-      onDone();
-    }, 600);
-  };
-
-  return { status, liveMessage, start };
-}
-
-export function AuthShell({
+export default function AuthShell({
   documentTitle,
   kickerText,
   title,
@@ -123,49 +72,5 @@ export function AuthShell({
         </div>
       </main>
     </>
-  );
-}
-
-export function ResultPanel({ kickerText, title, body, action }) {
-  const headingRef = useRef(null);
-
-  useEffect(() => {
-    headingRef.current?.focus();
-  }, []);
-
-  return (
-    <div className={authFormClass}>
-      <span className={kicker}>{kickerText}</span>
-      <h2
-        ref={headingRef}
-        id="auth-result"
-        tabIndex={-1}
-        aria-describedby="auth-result-body"
-        className={`${editorial} text-[clamp(40px,5vw,54px)]`}
-      >
-        {title}
-      </h2>
-      <p
-        id="auth-result-body"
-        className="max-w-[420px] text-[13px] leading-[1.75] text-muted"
-      >
-        {body}
-      </p>
-      <div className="mt-auto">{action}</div>
-    </div>
-  );
-}
-
-export function SubmitRow({ note, alternate, children }) {
-  return (
-    <div className="mt-auto flex flex-col gap-5">
-      <small className="text-[12px] leading-[1.5] text-muted">
-        {note}
-      </small>
-      {children}
-      {alternate ? (
-        <div className="text-[13px] leading-[1.75] text-muted">{alternate}</div>
-      ) : null}
-    </div>
   );
 }

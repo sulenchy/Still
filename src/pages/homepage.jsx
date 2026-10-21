@@ -16,7 +16,7 @@ import { Gallery } from '../components/gallery.jsx';
 import { Contact } from '../components/contact.jsx';
 import { Hero } from '../components/hero.jsx';
 
-const Homepage = () => {
+const HomePage = () => {
 
   return (
     <>
@@ -304,4 +304,4 @@ const Homepage = () => {
   );
 };
 
-export default Homepage;
+export default HomePage;

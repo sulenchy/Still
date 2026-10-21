@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { textLink } from '../constants/class-names';
+import { textLink, authFormClass, authSubmitClass  } from '../constants/class-names';
 import { ArrowIcon } from '../components/arrow-icon.jsx';
-import { UnderlineField } from '../components/underline-field.jsx';
+import { UnderlineField} from '../components/underline-field.jsx';
 import {
-  AuthShell,
-  ResultPanel,
-  SubmitRow,
-  authFormClass,
-  authSubmitClass,
+    AuthShell,
+    ResultPanel,
+    SubmitRow
+} from '../components';
+
+import {
   firstErrorId,
   isEmailAddress,
   usePreviewSubmit,
   useQueuedFocus,
-} from '../components/auth-shell.jsx';
+} from '../lib/index.js'
 
 const views = {
   'sign-in': {

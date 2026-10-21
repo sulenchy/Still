@@ -72,3 +72,35 @@ export const links = [
 ];
 
 export const Topics = ["Starting an archive", "Inviting my family", "Privacy and preservation", "Something else"];
+
+export const formCopy = {
+  documentTitle: 'Create account | Still',
+  kickerText: 'YOUR STORY STARTS HERE',
+  title: 'Create your account.',
+  emphasis: 'Begin with one quiet place.',
+  lede: 'Start preserving the memories your family shares. Private by default. Invite people when you’re ready.',
+  privacy: 'Your stories stay yours. We’ll only use these details to open your archive.',
+  facts: [
+    ['START', 'One photo is enough'],
+    ['ACCESS', 'You decide who can see it'],
+  ],
+};
+
+export const doneCopy = {
+  documentTitle: 'Your archive | Still',
+  kickerText: 'IT’S YOURS',
+  title: 'Your archive is ready.',
+  emphasis: 'Private, until you say otherwise.',
+  lede: 'Start with one photo. Add the story only you can tell.',
+  privacy: 'Your stories stay yours. We’ll only use these details to open your archive.',
+  facts: [
+    ['START', 'One photo is enough'],
+    ['ACCESS', 'You decide who can see it'],
+  ],
+};
+
+export const signupFields = [
+  ['email', 'email'],
+  ['password', 'password'],
+  ['confirmPassword', 'confirm-password'],
+];

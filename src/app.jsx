@@ -3,9 +3,11 @@ import {
   RouterProvider,
 } from 'react-router';
 
-import HomePage from './pages/homepage.jsx';
-import LoginPage from './pages/login.jsx';
-import SignupPage from './pages/sign-up.jsx';
+import {
+  HomePage,
+  LoginPage,
+  SignupPage
+} from './pages'
 
 const router = createBrowserRouter([
   {

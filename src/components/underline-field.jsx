@@ -56,7 +56,7 @@ export function UnderlineField({
         </small>
       ) : null}
       {error ? (
-        <p id={errorId} className="mt-2 text-[13px] leading-[1.5] text-forest">
+        <p id={errorId} className="mt-2 text-[13px] leading-[1.5] font-medium text-error">
           {error}
         </p>
       ) : null}

@@ -10,6 +10,7 @@
   --color-cream: #f7f2e8;
   --color-paper: #fffdf7;
   --color-peach: #e7a486;
+  --color-error: #9e2b2b;
   --color-line: #21342d29;
   --color-beige: #f1d5a5;
   --color-white: #fff;
@@ -32,13 +33,6 @@
   :focus-visible {
     outline: 2px solid var(--color-forest);
     outline-offset: 3px;
-  }
-
-  input[aria-invalid="true"],
-  select[aria-invalid="true"],
-  textarea[aria-invalid="true"] {
-    border-bottom-color: var(--color-forest);
-    box-shadow: 0 2px 0 0 var(--color-forest);
   }
 
   #auth-result:focus-visible {
@@ -64,6 +58,17 @@
       scroll-behavior: auto !important;
     }
   }
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"],
+input[aria-invalid="true"]:focus-visible,
+select[aria-invalid="true"]:focus-visible,
+textarea[aria-invalid="true"]:focus-visible {
+  border-bottom-color: var(--color-error);
+  box-shadow: 0 2px 0 0 var(--color-error);
+  outline-color: var(--color-error);
 }
 
 input[aria-invalid="true"]::placeholder {

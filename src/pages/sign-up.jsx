@@ -1,81 +1,53 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { textLink } from '../constants/class-names';
+import { textLink,  authFormClass, authSubmitClass, } from '../constants/class-names';
 import { ArrowIcon } from '../components/arrow-icon.jsx';
 import { UnderlineField } from '../components/underline-field.jsx';
+
 import {
   AuthShell,
   ResultPanel,
-  SubmitRow,
-  authFormClass,
-  authSubmitClass,
+  SubmitRow
+} from '../components';
+
+import {
   firstErrorId,
   isEmailAddress,
-  usePreviewSubmit,
   useQueuedFocus,
-} from '../components/auth-shell.jsx';
+  supabase
+} from '../lib';
 
-const formCopy = {
-  documentTitle: 'Create account | Still',
-  kickerText: 'YOUR STORY STARTS HERE',
-  title: 'Create your account.',
-  emphasis: 'Begin with one quiet place.',
-  lede: 'Start preserving the memories your family shares. Private by default. Invite people when you’re ready.',
-  privacy: 'Your stories stay yours. We’ll only use these details to open your archive.',
-  facts: [
-    ['START', 'One photo is enough'],
-    ['ACCESS', 'You decide who can see it'],
-  ],
-};
+import {
+  formCopy,
+  doneCopy,
+  signupFields
+} from '../constants/data.js'
 
-const doneCopy = {
-  documentTitle: 'Your archive | Still',
-  kickerText: 'IT’S YOURS',
-  title: 'Your archive is ready.',
-  emphasis: 'Private, until you say otherwise.',
-  lede: 'Start with one photo. Add the story only you can tell.',
-  privacy: 'Your stories stay yours. We’ll only use these details to open your archive.',
-  facts: [
-    ['START', 'One photo is enough'],
-    ['ACCESS', 'You decide who can see it'],
-  ],
-};
-
-const fields = [
-  ['email', 'email'],
-  ['password', 'password'],
-  ['confirmPassword', 'confirm-password'],
-];
-
-function validateSignup(values) {
-  const errors = {};
-  if (!values.email.trim()) errors.email = 'Email is required';
-  else if (!isEmailAddress(values.email)) errors.email = 'Enter an email address like anna@example.com';
-
-  if (!values.password) errors.password = 'Password is required';
-  else if (values.password.length < 8) errors.password = 'Use at least 8 characters';
-
-  if (!values.confirmPassword) errors.confirmPassword = 'Confirm your password';
-  else if (values.password !== values.confirmPassword) errors.confirmPassword = 'Those passwords don’t match';
-
-  return errors;
-}
+import {
+  validateSignup,
+  readSignUpError,
+  messagesFrom
+} from '../lib';
 
 function Signup() {
+  const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [resultMessage, setResultMessage] = useState('');
+  const [formError, setFormError] = useState('');
   const [values, setValues] = useState({
     email: '',
     password: '',
     confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
-  const { status, liveMessage, start } = usePreviewSubmit();
   const queueFocus = useQueuedFocus();
   const copy = done ? doneCopy : formCopy;
+  const messages = messagesFrom(errors, formError);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setValues((current) => ({ ...current, [name]: value }));
+    setFormError('');
     setErrors((current) => {
       if (name === 'password' || name === 'confirmPassword') {
         if (!current.password && !current.confirmPassword) return current;
@@ -85,19 +57,54 @@ function Signup() {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (status === 'submitting') return;
+    if (loading) return;
 
     const nextErrors = validateSignup(values);
     setErrors(nextErrors);
-    const invalidId = firstErrorId(nextErrors, fields);
+    const invalidId = firstErrorId(nextErrors, signupFields);
     if (invalidId) {
+      setFormError('');
       queueFocus(invalidId);
       return;
     }
 
-    start('Creating account.', () => setDone(true));
+    setFormError('');
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email.trim(),
+        password: values.password,
+      });
+
+      if (error) {
+        const result = readSignUpError(error);
+        setErrors(result.fieldErrors);
+        setFormError(result.formError);
+        queueFocus(firstErrorId(result.fieldErrors, signupFields) || 'signup-error');
+        return;
+      }
+
+      if (!data?.user) {
+        setFormError('Something went wrong. Please try again.');
+        queueFocus('signup-error');
+        return;
+      }
+
+      setResultMessage(
+        data.session
+          ? 'Your account has been created successfully.'
+          : 'Account request received. Check your email for a confirmation link if required.',
+      );
+      setDone(true);
+    } catch {
+      setFormError('Something went wrong. Please check your connection and try again.');
+      queueFocus('signup-error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -106,7 +113,7 @@ function Signup() {
         <ResultPanel
           kickerText="WELCOME"
           title="We’ll keep it safe."
-          body="Add a memory whenever you like. Invite your family when you want them beside you."
+          body={resultMessage || 'Add a memory whenever you like. Invite your family when you want them beside you.'}
           action={(
             <Link to="/" className={authSubmitClass}>
               Go to your archive
@@ -120,9 +127,24 @@ function Signup() {
           method="post"
           onSubmit={handleSubmit}
           noValidate
-          aria-busy={status === 'submitting'}
+          aria-busy={loading}
         >
-          <p className="sr-only" aria-live="polite">{liveMessage}</p>
+          <p className="sr-only" aria-live="polite">{loading ? 'Creating account.' : ''}</p>
+          {messages.length > 0 ? (
+            <div
+              id="signup-error"
+              tabIndex={-1}
+              role="alert"
+              className="border-l-2 border-error bg-error/8 px-4 py-3 outline-none"
+            >
+              <p className="font-serif text-[20px] leading-[1.3] text-error">We couldn’t create your account.</p>
+              <ul className="mt-2 text-[13px] leading-[1.6] font-medium text-error">
+                {messages.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <UnderlineField
             id="email"
             name="email"
@@ -179,10 +201,10 @@ function Signup() {
                 <Link
                   to="/login"
                   className={textLink}
-                  aria-disabled={status === 'submitting'}
-                  tabIndex={status === 'submitting' ? -1 : undefined}
+                  aria-disabled={loading}
+                  tabIndex={loading ? -1 : undefined}
                   onClick={(event) => {
-                    if (status === 'submitting') event.preventDefault();
+                    if (loading) event.preventDefault();
                   }}
                 >
                   Sign in
@@ -190,8 +212,8 @@ function Signup() {
               </p>
             )}
           >
-            <button type="submit" className={authSubmitClass} disabled={status === 'submitting'}>
-              {status === 'submitting' ? 'Creating account' : 'Create account'}
+            <button type="submit" className={authSubmitClass} disabled={loading}>
+              {loading ? 'Creating account' : 'Create account'}
               <ArrowIcon />
             </button>
           </SubmitRow>

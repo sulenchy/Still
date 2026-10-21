@@ -28,3 +28,7 @@ export const closedNav =
 export const openNav =
   'absolute top-[65px] right-[18px] z-50 flex flex-col items-stretch gap-8 bg-paper p-4 shadow-[0_15px_35px_#1e2e28] desk:static desk:z-auto desk:flex-row desk:items-center desk:bg-transparent desk:p-0 desk:shadow-none';
 
+export const authFormClass = 'flex w-full flex-col gap-6';
+
+export const authSubmitClass = `${primaryButton} auth-submit w-full transition-colors duration-200 hover:bg-deep disabled:cursor-wait disabled:opacity-60 desk:ml-auto desk:w-auto`;
+
