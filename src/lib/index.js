@@ -102,6 +102,58 @@ export function messagesFrom(errors, formError) {
   ].filter(Boolean))];
 }
 
+export function validateEmail(email) {
+  if (!email.trim()) return 'Email is required';
+  if (!isEmailAddress(email)) return 'Enter an email address like anna@example.com';
+  return '';
+}
+
+export function readSignInError(error) {
+  const message = typeof error?.message === 'string' && error.message.trim()
+    ? error.message
+    : 'Something went wrong. Please try again.';
+  const code = error?.code || '';
+  const fieldErrors = {};
+
+  if (
+    code === 'invalid_credentials'
+    || /invalid login credentials|invalid credentials/i.test(message)
+  ) {
+    return { fieldErrors, formError: 'Email or password is incorrect.' };
+  }
+
+  if (code === 'email_not_confirmed' || /email not confirmed/i.test(message)) {
+    fieldErrors.email = 'Confirm your email before signing in.';
+    return { fieldErrors, formError: fieldErrors.email };
+  }
+
+  if (code === 'email_address_invalid' || /invalid email|unable to validate email/i.test(message)) {
+    fieldErrors.email = 'Enter an email address like anna@example.com';
+    return { fieldErrors, formError: message };
+  }
+
+  if (/password/i.test(message)) {
+    fieldErrors.password = message;
+    return { fieldErrors, formError: message };
+  }
+
+  return { fieldErrors, formError: message };
+}
+
+export function validateSignIn(values) {
+  const errors = {};
+  const emailError = validateEmail(values.email);
+  if (emailError) errors.email = emailError;
+  if (!values.password) errors.password = 'Password is required';
+  return errors;
+}
+
+export function validateReset(values) {
+  const errors = {};
+  const emailError = validateEmail(values.email);
+  if (emailError) errors.email = emailError;
+  return errors;
+}
 
 
 export {

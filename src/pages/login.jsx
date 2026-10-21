@@ -11,139 +11,108 @@ import {
 
 import {
   firstErrorId,
-  isEmailAddress,
-  usePreviewSubmit,
+  messagesFrom,
+  readSignInError,
+  supabase,
   useQueuedFocus,
+  validateReset,
+  validateSignIn,
 } from '../lib/index.js'
 
-const views = {
-  'sign-in': {
-    documentTitle: 'Sign in | Still',
-    kickerText: 'SIGN IN',
-    title: 'Welcome back.',
-    emphasis: 'The little things are still here.',
-    lede: 'Sign in to revisit the photos, voices, and notes your family has gathered.',
-    privacy: 'Your stories stay yours. We’ll only use these details to sign you in.',
-    facts: [
-      ['PRIVACY', 'Private by default'],
-      ['FAMILY', 'Invite when you’re ready'],
-    ],
-  },
-  reset: {
-    documentTitle: 'Reset password | Still',
-    kickerText: 'RESET PASSWORD',
-    title: 'Forgot your password?',
-    emphasis: 'We’ll help you back in.',
-    lede: 'Enter the email on your archive and we’ll prepare a reset note.',
-    privacy: 'Your stories stay yours. We’ll only use this email to help you sign in.',
-    facts: [
-      ['EMAIL', 'The address on your account'],
-      ['NEXT', 'A note to choose a new password'],
-    ],
-  },
-  'signed-in': {
-    documentTitle: 'Welcome back | Still',
-    kickerText: 'WELCOME BACK',
-    title: 'Good to see you.',
-    emphasis: 'Your stories kept.',
-    lede: 'Take a quiet moment with the people you love.',
-    privacy: 'Your stories stay yours. We’ll only use these details to sign you in.',
-    facts: [
-      ['PRIVACY', 'Private by default'],
-      ['FAMILY', 'Invite when you’re ready'],
-    ],
-  },
-  'reset-sent': {
-    documentTitle: 'Check your email | Still',
-    kickerText: 'CHECK YOUR EMAIL',
-    title: 'Look for a note.',
-    emphasis: 'It may take a minute.',
-    lede: 'Your archive stays private either way.',
-    privacy: 'Your stories stay yours. We’ll only use this email to help you sign in.',
-    facts: [
-      ['EMAIL', 'The address on your account'],
-      ['NEXT', 'A note to choose a new password'],
-    ],
-  },
-};
+import { signInFields, resetFields, signInViews } from '../constants/data.js';
 
-const signInFields = [
-  ['email', 'email'],
-  ['password', 'password'],
-];
-
-const resetFields = [['email', 'email']];
-
-function validateEmail(email) {
-  if (!email.trim()) return 'Email is required';
-  if (!isEmailAddress(email)) return 'Enter an email address like anna@example.com';
-  return '';
-}
-
-function validateSignIn(values) {
-  const errors = {};
-  const emailError = validateEmail(values.email);
-  if (emailError) errors.email = emailError;
-  if (!values.password) errors.password = 'Password is required';
-  return errors;
-}
-
-function validateReset(values) {
-  const errors = {};
-  const emailError = validateEmail(values.email);
-  if (emailError) errors.email = emailError;
-  return errors;
-}
 
 function Login() {
   const [intent, setIntent] = useState('sign-in');
   const [panel, setPanel] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
   const [values, setValues] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
-  const { status, liveMessage, start } = usePreviewSubmit();
   const queueFocus = useQueuedFocus();
   const view = panel || intent;
-  const copy = views[view];
+  const copy = signInViews[view];
+  const messages = messagesFrom(errors, formError);
+  const errorTitle = intent === 'reset'
+    ? 'We couldn’t send a reset note.'
+    : 'We couldn’t sign you in.';
 
   const showSignIn = () => {
     setPanel('');
     setIntent('sign-in');
     setErrors({});
+    setFormError('');
     queueFocus('email');
   };
 
   const showReset = () => {
     setIntent('reset');
     setErrors({});
+    setFormError('');
     queueFocus('email');
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setValues((current) => ({ ...current, [name]: value }));
+    setFormError('');
     setErrors((current) => (current[name] ? { ...current, [name]: '' } : current));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (status === 'submitting') return;
+    if (loading) return;
 
+    const fields = intent === 'reset' ? resetFields : signInFields;
     const nextErrors = intent === 'reset' ? validateReset(values) : validateSignIn(values);
     setErrors(nextErrors);
-    const invalidId = firstErrorId(nextErrors, intent === 'reset' ? resetFields : signInFields);
+    const invalidId = firstErrorId(nextErrors, fields);
     if (invalidId) {
+      setFormError('');
       queueFocus(invalidId);
       return;
     }
 
-    const message = intent === 'reset' ? 'Sending reset note.' : 'Signing in.';
-    start(message, () => {
-      setPanel(intent === 'reset' ? 'reset-sent' : 'signed-in');
-    });
+    if (intent === 'reset') {
+      setFormError('');
+      setPanel('reset-sent');
+      return;
+    }
+
+    setFormError('');
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: values.email.trim(),
+        password: values.password,
+      });
+
+      if (error) {
+        const result = readSignInError(error);
+        setErrors(result.fieldErrors);
+        setFormError(result.formError);
+        queueFocus(firstErrorId(result.fieldErrors, signInFields) || 'login-error');
+        return;
+      }
+
+      if (!data?.session) {
+        setFormError('Something went wrong. Please try again.');
+        queueFocus('login-error');
+        return;
+      }
+
+      setPanel('signed-in');
+    } catch {
+      setFormError('Something went wrong. Please check your connection and try again.');
+      queueFocus('login-error');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const submitLabel = status === 'submitting'
-    ? (intent === 'reset' ? 'Sending note' : 'Signing in')
+  const submitLabel = loading
+    ? 'Signing in'
     : (intent === 'reset' ? 'Send reset note' : 'Sign in');
 
   return (
@@ -180,9 +149,24 @@ function Login() {
           method="post"
           onSubmit={handleSubmit}
           noValidate
-          aria-busy={status === 'submitting'}
+          aria-busy={loading}
         >
-          <p className="sr-only" aria-live="polite">{liveMessage}</p>
+          <p className="sr-only" aria-live="polite">{loading ? 'Signing in.' : ''}</p>
+          {messages.length > 0 ? (
+            <div
+              id="login-error"
+              tabIndex={-1}
+              role="alert"
+              className="border-l-2 border-error bg-error/8 px-4 py-3 outline-none"
+            >
+              <p className="font-serif text-[20px] leading-[1.3] text-error">{errorTitle}</p>
+              <ul className="mt-2 text-[13px] leading-[1.6] font-medium text-error">
+                {messages.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <UnderlineField
             id="email"
             name="email"
@@ -221,7 +205,7 @@ function Login() {
               type="button"
               className={`${textLink} self-start`}
               onClick={showReset}
-              disabled={status === 'submitting'}
+              disabled={loading}
             >
               Forgot password?
             </button>
@@ -235,7 +219,7 @@ function Login() {
                 type="button"
                 className={textLink}
                 onClick={showSignIn}
-                disabled={status === 'submitting'}
+                disabled={loading}
               >
                 Back to sign in
               </button>
@@ -245,10 +229,10 @@ function Login() {
                 <Link
                   to="/signup"
                   className={textLink}
-                  aria-disabled={status === 'submitting'}
-                  tabIndex={status === 'submitting' ? -1 : undefined}
+                  aria-disabled={loading}
+                  tabIndex={loading ? -1 : undefined}
                   onClick={(event) => {
-                    if (status === 'submitting') event.preventDefault();
+                    if (loading) event.preventDefault();
                   }}
                 >
                   Create an account
@@ -256,7 +240,7 @@ function Login() {
               </p>
             )}
           >
-            <button type="submit" className={authSubmitClass} disabled={status === 'submitting'}>
+            <button type="submit" className={authSubmitClass} disabled={loading}>
               {submitLabel}
               <ArrowIcon />
             </button>

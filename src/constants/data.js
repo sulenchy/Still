@@ -104,3 +104,61 @@ export const signupFields = [
   ['password', 'password'],
   ['confirmPassword', 'confirm-password'],
 ];
+
+export const signInFields = [
+  ['email', 'email'],
+  ['password', 'password'],
+];
+
+export const resetFields = [['email', 'email']];
+
+export const signInViews = {
+  'sign-in': {
+    documentTitle: 'Sign in | Still',
+    kickerText: 'SIGN IN',
+    title: 'Welcome back.',
+    emphasis: 'The little things are still here.',
+    lede: 'Sign in to revisit the photos, voices, and notes your family has gathered.',
+    privacy: 'Your stories stay yours. We’ll only use these details to sign you in.',
+    facts: [
+      ['PRIVACY', 'Private by default'],
+      ['FAMILY', 'Invite when you’re ready'],
+    ],
+  },
+  reset: {
+    documentTitle: 'Reset password | Still',
+    kickerText: 'RESET PASSWORD',
+    title: 'Forgot your password?',
+    emphasis: 'We’ll help you back in.',
+    lede: 'Enter the email on your archive and we’ll prepare a reset note.',
+    privacy: 'Your stories stay yours. We’ll only use this email to help you sign in.',
+    facts: [
+      ['EMAIL', 'The address on your account'],
+      ['NEXT', 'A note to choose a new password'],
+    ],
+  },
+  'signed-in': {
+    documentTitle: 'Welcome back | Still',
+    kickerText: 'WELCOME BACK',
+    title: 'Good to see you.',
+    emphasis: 'Your stories kept.',
+    lede: 'Take a quiet moment with the people you love.',
+    privacy: 'Your stories stay yours. We’ll only use these details to sign you in.',
+    facts: [
+      ['PRIVACY', 'Private by default'],
+      ['FAMILY', 'Invite when you’re ready'],
+    ],
+  },
+  'reset-sent': {
+    documentTitle: 'Check your email | Still',
+    kickerText: 'CHECK YOUR EMAIL',
+    title: 'Look for a note.',
+    emphasis: 'It may take a minute.',
+    lede: 'Your archive stays private either way.',
+    privacy: 'Your stories stay yours. We’ll only use this email to help you sign in.',
+    facts: [
+      ['EMAIL', 'The address on your account'],
+      ['NEXT', 'A note to choose a new password'],
+    ],
+  },
+};
