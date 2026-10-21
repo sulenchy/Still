@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { BrandIcon } from './brand-icon';
 import { primaryButton, closedNav, openNav } from '../constants/class-names';
 import { links } from '../constants/data';
@@ -45,12 +46,12 @@ export const Header = () => {
         ))}
       </nav>
       <div className="hidden items-center gap-5 desk:flex">
-        <a href="#" className="text-sm">
+        <Link to="/login" className="inline-flex min-h-11 items-center text-sm hover:underline">
           Sign in
-        </a>
-        <a href="#gallery" className={primaryButton}>
+        </Link>
+        <Link to="/signup" className={primaryButton}>
           Start your archive
-        </a>
+        </Link>
       </div>
     </header>
   );

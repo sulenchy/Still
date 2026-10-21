@@ -14,6 +14,9 @@ export const strokeIcon = "size-[18px] shrink-0 fill-none stroke-current stroke-
 export const fieldClass =
   "w-full border-b border-line bg-transparent py-[13px] font-serif text-[17px] font-normal leading-[normal] outline-none transition-[border-color,box-shadow] duration-200 ease-[ease] focus-visible:border-forest focus-visible:shadow-[0_2px_0_0_var(--color-forest)] focus-visible:outline-none";
 
+export const textLink =
+  "inline-flex min-h-11 items-center text-ink underline decoration-peach underline-offset-[5px]";
+
 export const bar =
   "block w-1.5 origin-bottom rounded-t-[9px] rounded-b-[2px] bg-current";
 

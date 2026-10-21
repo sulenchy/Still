@@ -34,6 +34,22 @@
     outline-offset: 3px;
   }
 
+  input[aria-invalid="true"],
+  select[aria-invalid="true"],
+  textarea[aria-invalid="true"] {
+    border-bottom-color: var(--color-forest);
+    box-shadow: 0 2px 0 0 var(--color-forest);
+  }
+
+  #auth-result:focus-visible {
+    outline: none;
+    box-shadow: 0 3px 0 0 var(--color-peach);
+  }
+
+  .auth-submit {
+    white-space: nowrap;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -48,4 +64,8 @@
       scroll-behavior: auto !important;
     }
   }
+}
+
+input[aria-invalid="true"]::placeholder {
+  color: transparent;
 }
