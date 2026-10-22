@@ -14,10 +14,11 @@
 
 ## 🌟 Quick Links
 
-- 🌐 **[Live Website Demo](https://sulenchy.github.io/PMem/)**
+- 🌐 **[Live Website Demo](https://still-rg7h.onrender.com/)**
 - 🎨 **[Figma Prototype](https://forum-remake-98457982.figma.site/)**
 - ♿ **[Web Accessibility Architecture](#-web-accessibility-in-practice-a11y-first-engineering)**
 - 🚀 **[Quick Start & Preview](#-quick-start)**
+- 🔐 **[Supabase](#-supabase)**
 - 📐 **[Design System & Tokens](#-design-system--tokens)**
 - 🗂️ **[Original HTML & CSS landing](old-template/)**
 
@@ -28,6 +29,8 @@
 Most photo albums today are either chaotic camera rolls or generic cloud drives. **Still** takes an editorial approach: turning everyday family moments, forgotten voices, and intimate notes into a considered, timeless collection.
 
 The landing page has been rebuilt as a React application. Layout, color, and type come from Tailwind CSS, with the palette defined as theme tokens in `src/styles.css`. Page sections live in `src/components`, and shared copy and class strings live in `src/constants`.
+
+Sign-in, sign-up, and the protected archive use [Supabase Auth](#-supabase).
 
 The earlier static landing page — `index.html` and `styles.css`, with no JavaScript — has moved to `old-template/`. That folder is the reference for the original markup and styles. The app in `src/` is the page to run and change.
 
@@ -138,8 +141,13 @@ Still/
 │   └── images/                # AVIF imagery used by the app
 ├── src/
 │   ├── main.jsx               # React root
-│   ├── app.jsx                # Page composition
+│   ├── app.jsx                # Routes: home, login, signup, dashboard
 │   ├── styles.css             # Tailwind theme and base rules
+│   ├── auth/
+│   │   └── auth-provider.jsx  # Session and sign-out
+│   ├── lib/
+│   │   └── supabase.js        # Supabase client
+│   ├── pages/                 # Landing, login, signup, dashboard
 │   ├── components/            # Header, hero, gallery, contact, footer
 │   └── constants/             # Class strings and page data
 └── old-template/              # Original HTML and CSS landing page
@@ -157,10 +165,15 @@ The app uses [pnpm](https://pnpm.io/). From the project root:
 
 ```bash
 pnpm install
+```
+
+Create [`.env.local`](#-supabase) with the Supabase project URL and publishable key, then start the app:
+
+```bash
 pnpm dev
 ```
 
-Vite serves the React landing page at **`http://localhost:5173`**.
+Vite serves the React landing page at **`http://localhost:5173`**. Sign in at `/login`, create an account at `/signup`, and open the archive at `/dashboard`.
 
 ```bash
 pnpm build     # production build in dist/
@@ -170,6 +183,47 @@ pnpm preview   # serve the production build
 ### Original HTML and CSS page
 
 `old-template/` has no build step. Open `old-template/index.html` in a browser, or serve that folder with any static server. Its images are in `old-template/public/images/`.
+
+---
+
+## 🔐 Supabase
+
+Accounts are stored with [Supabase Auth](https://supabase.com/docs/guides/auth). The browser client is `@supabase/supabase-js` (`^2.118.0`), created in `src/lib/supabase.js`.
+
+### Environment
+
+The client reads two variables. Put them in `.env.local` at the project root. That file is listed in `.gitignore`.
+
+The API endpoint is `https://bhqsucwdkfvaofmirsqc.supabase.co`. Auth requests use `https://bhqsucwdkfvaofmirsqc.supabase.co/auth/v1`.
+
+```bash
+VITE_SUPABASE_URL=https://bhqsucwdkfvaofmirsqc.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+```
+
+| Variable | Where to copy it |
+| :--- | :--- |
+| `VITE_SUPABASE_URL` | `https://bhqsucwdkfvaofmirsqc.supabase.co`, also shown in the Connect dialog |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | The publishable key from the Connect dialog, or from Settings → API Keys |
+
+There is no separate Settings → API page. The publishable key is safe to ship in the browser. The secret key is not read by the app. Do not put it in `.env.local`, and do not give it a `VITE_` name: Vite inlines every `VITE_` variable into the bundle. The client throws on startup if the URL or the publishable key is missing. `pnpm dev` and `pnpm build` both need the two variables, because the production bundle bakes them in at build time.
+
+In Authentication, enable the Email provider. If **Confirm email** is on, a new account has no session until the person opens the confirmation link. If it is off, signup returns a session immediately.
+
+### What the app calls
+
+- **Sign up** (`/signup`) validates the email and password, then calls `supabase.auth.signUp`. When Supabase returns a session, “Go to your archive” opens `/dashboard`. When it does not, the welcome screen says to check email and the button returns home.
+- **Sign in** (`/login`) calls `supabase.auth.signInWithPassword`. A successful sign-in offers “Open the archive”, which goes to `/dashboard`. Unknown email or password shows “Email or password is incorrect.”
+- **Session** lives in `AuthProvider` (`src/auth/auth-provider.jsx`). It loads the session with `getSession` and follows later changes with `onAuthStateChange`. `useAuth` exposes `session`, `user`, `loading`, and `signOut`.
+- **`/dashboard`** is behind `ProtectedRoute`. A visitor with no session is sent to `/login`. While the session is loading, the page reads “Checking your session…”.
+- **Log out**, in the marketing header and on the account view, calls `supabase.auth.signOut()` and then reads `getSession()` again. The person is logged out when that stored session is gone, and is returned to `/login` from the account view. If a session is still there, the header stays signed in and shows the error.
+- A signed-in header replaces Sign in and Start your archive with **Your archive** (`/dashboard`) and **Log out**.
+
+Forgot password stays on `/login`. Sending it shows a local note and does not call `supabase.auth.resetPasswordForEmail`, so Supabase sends no reset email.
+
+### What stays in the browser
+
+Memories, family invites, time capsules, and files chosen on Add a moment stay in React state for that visit. Refreshing the page restores the starter archive in `src/constants/dashboard.js`. The app does not write those records to a Supabase table or Storage bucket.
 
 ---
 
