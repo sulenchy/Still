@@ -9,6 +9,8 @@ import {
   SignupPage
 } from './pages'
 
+import { AuthProvider } from './auth/auth-provider';
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -25,7 +27,9 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (<AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>)
 }
 
 export default App;
