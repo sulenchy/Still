@@ -1,4 +1,5 @@
 import { ArrowIcon } from './arrow-icon.jsx';
+import { MemoryMedia } from './memory-media.jsx';
 import { PlusIcon } from './plus-icon.jsx';
 import { DashboardIntro } from './dashboard-shell.jsx';
 import { editorial, kicker, primaryButton } from '../constants/class-names.js';
@@ -13,10 +14,10 @@ function FeaturedMemory({ memory, onOpen }) {
   return (
     <article className="bg-paper p-3 shadow-[0_24px_60px_#1e2e2826]" aria-labelledby="featured-title">
       {memory.src ? (
-        <img
-          alt={memory.alt}
-          src={memory.src}
-          className="h-[300px] object-cover saturate-[0.8] desk:h-[440px]"
+        <MemoryMedia
+          memory={memory}
+          controls
+          className="h-[300px] w-full object-cover saturate-[0.8] desk:h-[440px]"
         />
       ) : (
         <div className="flex h-[300px] items-end bg-beige p-6 desk:h-[440px]">
@@ -146,9 +147,8 @@ export function DashboardArchive({
               <li key={memory.id}>
                 <article className="grid grid-cols-[112px_1fr] gap-4 border border-line bg-paper p-3">
                   {memory.src ? (
-                    <img
-                      alt={memory.alt}
-                      src={memory.src}
+                    <MemoryMedia
+                      memory={memory}
                       className="h-[112px] w-[112px] object-cover saturate-[0.8]"
                     />
                   ) : (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowIcon } from './arrow-icon.jsx';
 import { DashboardIntro, FormAlert, paperCard } from './dashboard-shell.jsx';
 import { fieldClass, primaryButton } from '../constants/class-names.js';
@@ -11,17 +11,64 @@ import { UnderlineField } from './underline-field.jsx';
 import { firstErrorId, useQueuedFocus } from '../lib/index.js';
 
 const fields = [
+  ['file', 'moment-file'],
   ['title', 'moment-title'],
   ['date', 'moment-date'],
   ['story', 'moment-story'],
 ];
 
 const kindNotes = {
-  Photo: 'A sample photograph stands in until uploads are connected.',
-  Video: 'We’ll keep the story now. Playback comes later.',
-  Voice: 'We’ll keep the words until recording is connected.',
+  Photo: 'The photograph and the story stay together.',
+  Video: 'Playback stays in this browser for the visit.',
+  Voice: 'We’ll keep the words, and the recording if you add one.',
   Story: 'A few true sentences are enough.',
 };
+
+const uploadCopy = {
+  Photo: {
+    label: 'Photograph',
+    accept: 'image/*',
+    hint: 'Optional. Leave this blank and a sample stands in for this visit.',
+    error: 'Choose an image file.',
+  },
+  Video: {
+    label: 'Video',
+    accept: 'video/*',
+    hint: 'Optional. Leave this blank and a sample still stands in.',
+    error: 'Choose a video file.',
+  },
+  Voice: {
+    label: 'Recording',
+    accept: 'audio/*',
+    hint: 'Optional. We’ll keep the words if you skip this.',
+    error: 'Choose an audio file.',
+  },
+  Story: {
+    label: 'Photograph',
+    accept: 'image/*',
+    hint: 'Optional. Add a picture if this story has one.',
+    error: 'Choose an image file.',
+  },
+};
+
+function mediaKindOf(file) {
+  if (file.type.startsWith('image/')) return 'image';
+  if (file.type.startsWith('video/')) return 'video';
+  if (file.type.startsWith('audio/')) return 'audio';
+
+  const name = file.name.toLowerCase();
+  if (/\.(avif|bmp|gif|heic|jpe?g|png|webp)$/.test(name)) return 'image';
+  if (/\.(m4v|mov|mp4|webm)$/.test(name)) return 'video';
+  if (/\.(aac|m4a|mp3|ogg|wav)$/.test(name)) return 'audio';
+  return '';
+}
+
+function fileAllowed(kind, file) {
+  const mediaKind = mediaKindOf(file);
+  if (kind === 'Video') return mediaKind === 'video';
+  if (kind === 'Voice') return mediaKind === 'audio';
+  return mediaKind === 'image';
+}
 
 function choiceClass(selected) {
   return `flex min-h-11 cursor-pointer items-center gap-3 border px-4 ${
@@ -34,9 +81,24 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
   const [privacy, setPrivacy] = useState('family');
   const [chosenPeople, setChosenPeople] = useState([]);
   const [values, setValues] = useState({ title: '', date: '', place: '', story: '' });
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
   const [errors, setErrors] = useState({});
+  const fileInputRef = useRef(null);
   const queueFocus = useQueuedFocus();
+  const upload = uploadCopy[kind];
   const messages = [...new Set(Object.values(errors).filter(Boolean))];
+
+  useEffect(() => {
+    if (!file || mediaKindOf(file) !== 'image') {
+      setPreviewUrl('');
+      return undefined;
+    }
+
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -50,9 +112,28 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
     ));
   };
 
+  const selectKind = (item) => {
+    setKind(item);
+    setFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setErrors((current) => (current.file ? { ...current, file: '' } : current));
+  };
+
+  const handleFile = (event) => {
+    const next = event.target.files?.[0] || null;
+    setFile(next);
+    if (!next || fileAllowed(kind, next)) {
+      setErrors((current) => (current.file ? { ...current, file: '' } : current));
+      return;
+    }
+    setErrors((current) => ({ ...current, file: upload.error }));
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const nextErrors = {};
+    const mediaKind = file ? mediaKindOf(file) : '';
+    if (file && !fileAllowed(kind, file)) nextErrors.file = upload.error;
     if (!values.title.trim()) nextErrors.title = 'Title is required';
     if (!values.date) nextErrors.date = 'Choose a date';
     if (!values.story.trim()) nextErrors.story = 'The story is required';
@@ -66,17 +147,22 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
 
     const taggedPeople = [...chosenPeople];
     if (privacy === 'family' && !taggedPeople.includes('Family')) taggedPeople.unshift('Family');
-    const samples = memories.filter((memory) => memory.src);
+    const samples = memories.filter((memory) => memory.src && memory.mediaType !== 'video');
     const sample = samples.length ? samples[memories.length % samples.length] : null;
-    const useSample = kind === 'Photo' || kind === 'Video';
+    const useSample = !file && (kind === 'Photo' || kind === 'Video');
+    const uploadedUrl = file ? URL.createObjectURL(file) : '';
 
     onCreate({
       id: `memory-${Date.now()}`,
       layout: '',
-      alt: useSample && sample
-        ? `Sample photograph standing in for ${values.title.trim()}`
-        : '',
-      src: useSample && sample ? sample.src : '',
+      alt: file && mediaKind === 'image'
+        ? values.title.trim()
+        : (useSample && sample ? `Sample photograph standing in for ${values.title.trim()}` : ''),
+      src: file && mediaKind !== 'audio'
+        ? uploadedUrl
+        : (useSample && sample ? sample.src : ''),
+      mediaType: file ? mediaKind : '',
+      audioSrc: file && mediaKind === 'audio' ? uploadedUrl : '',
       date: formatMemoryDate(values.date),
       title: values.title.trim(),
       people: taggedPeople,
@@ -130,7 +216,7 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
                   name="moment-kind"
                   value={item}
                   checked={kind === item}
-                  onChange={() => setKind(item)}
+                  onChange={() => selectKind(item)}
                 />
                 {item}
               </label>
@@ -138,6 +224,38 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
           </div>
           <p className="mt-3 text-[12px] leading-[1.5] text-muted">{kindNotes[kind]}</p>
         </fieldset>
+        <div>
+          <label htmlFor="moment-file" className="mb-2 block text-[9px] tracking-[0.08em] uppercase">
+            {upload.label}
+          </label>
+          <input
+            ref={fileInputRef}
+            id="moment-file"
+            name="file"
+            type="file"
+            accept={upload.accept}
+            aria-invalid={errors.file ? 'true' : undefined}
+            aria-describedby={errors.file ? 'moment-file-error' : 'moment-file-hint'}
+            className={`${fieldClass} min-h-11 cursor-pointer file:mr-4 file:inline-flex file:min-h-11 file:cursor-pointer file:items-center file:border-0 file:bg-pale file:px-4 file:font-sans file:text-sm file:text-ink`}
+            onChange={handleFile}
+          />
+          {errors.file ? (
+            <p id="moment-file-error" className="mt-2 text-[13px] leading-[1.5] font-medium text-error">
+              {errors.file}
+            </p>
+          ) : (
+            <small id="moment-file-hint" className="mt-2 block text-[12px] leading-[1.5] text-muted">
+              {upload.hint}
+            </small>
+          )}
+          {previewUrl ? (
+            <img
+              alt="Preview of the chosen photograph"
+              src={previewUrl}
+              className="mt-4 h-40 w-full object-cover saturate-[0.8]"
+            />
+          ) : null}
+        </div>
         <UnderlineField
           id="moment-title"
           name="title"

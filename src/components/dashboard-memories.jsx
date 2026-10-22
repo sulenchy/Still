@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowIcon } from './arrow-icon.jsx';
+import { MemoryMedia } from './memory-media.jsx';
 import { PlusIcon } from './plus-icon.jsx';
 import { DashboardIntro, FormStatus } from './dashboard-shell.jsx';
 import { editorial, fieldClass, kicker, primaryButton } from '../constants/class-names.js';
@@ -106,10 +107,10 @@ export function DashboardMemories({
           className="grid gap-6 bg-paper p-4 shadow-[0_20px_60px_#1e2e2817] outline-none desk:grid-cols-[1.05fr_0.95fr] desk:p-6"
         >
           {selected.src ? (
-            <img
-              alt={selected.alt}
-              src={selected.src}
-              className="h-[320px] object-cover saturate-[0.8] desk:h-full desk:min-h-[420px]"
+            <MemoryMedia
+              memory={selected}
+              controls
+              className="h-[320px] w-full object-cover saturate-[0.8] desk:h-full desk:min-h-[420px]"
             />
           ) : (
             <div className="flex min-h-[280px] items-end bg-beige p-6">
@@ -150,15 +151,21 @@ export function DashboardMemories({
             </ul>
             {selected.voice ? (
               <div className="mt-6 border-t border-line pt-5">
-                <button
-                  type="button"
-                  className={primaryButton}
-                  aria-pressed={playingId === selected.id}
-                  onClick={() => toggleVoice(selected)}
-                >
-                  {playingId === selected.id ? 'Pause' : 'Play'} {selected.voice.speaker}’s voice
-                  <span className="text-white/70">{selected.voice.duration}</span>
-                </button>
+                {selected.audioSrc ? (
+                  <audio className="w-full min-h-11" controls preload="metadata" src={selected.audioSrc}>
+                    This recording can’t play in the browser.
+                  </audio>
+                ) : (
+                  <button
+                    type="button"
+                    className={primaryButton}
+                    aria-pressed={playingId === selected.id}
+                    onClick={() => toggleVoice(selected)}
+                  >
+                    {playingId === selected.id ? 'Pause' : 'Play'} {selected.voice.speaker}’s voice
+                    <span className="text-white/70">{selected.voice.duration}</span>
+                  </button>
+                )}
                 <p className="sr-only" aria-live="polite">{voiceMessage}</p>
                 <blockquote className="mt-4 border-l border-peach pl-4 font-serif text-[20px] leading-[1.4] italic">
                   “{selected.voice.transcript}”
@@ -217,10 +224,9 @@ export function DashboardMemories({
             <li key={memory.id}>
               <article className="flex h-full flex-col bg-paper shadow-[0_20px_50px_#1e2e2814]">
                 {memory.src ? (
-                  <img
-                    alt={memory.alt}
-                    src={memory.src}
-                    className="h-[220px] object-cover saturate-[0.8]"
+                  <MemoryMedia
+                    memory={memory}
+                    className="h-[220px] w-full object-cover saturate-[0.8]"
                   />
                 ) : (
                   <div className="flex h-[220px] items-end bg-beige p-5">
