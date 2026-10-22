@@ -123,7 +123,7 @@ function Login() {
           title="The archive is open."
           body="Whenever you’re ready, it’s just where you left it."
           action={(
-            <Link to="/" className={authSubmitClass}>
+            <Link to="/dashboard" className={authSubmitClass}>
               Open the archive
               <ArrowIcon />
             </Link>

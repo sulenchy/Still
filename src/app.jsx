@@ -6,13 +6,14 @@ import {
 import {
   HomePage,
   LoginPage,
-  SignupPage
+  SignupPage,
+  DashboardPage
 } from './pages'
 
+import { ProtectedRoute } from './components';
 import { AuthProvider } from './auth/auth-provider';
 
-const router = createBrowserRouter([
-  {
+const router = createBrowserRouter([  {
     path: '/',
     element: <HomePage />,
   },
@@ -24,10 +25,18 @@ const router = createBrowserRouter([
     path: '/signup',
     element: <SignupPage />,
   },
+   {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: '/dashboard',
+        element: <DashboardPage />,
+      },
+    ],
+  },
 ]);
 
-function App() {
-  return (<AuthProvider>
+function App() {  return (<AuthProvider>
     <RouterProvider router={router} />
   </AuthProvider>)
 }

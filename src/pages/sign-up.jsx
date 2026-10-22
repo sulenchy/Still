@@ -32,6 +32,7 @@ import {
 function Signup() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
   const [resultMessage, setResultMessage] = useState('');
   const [formError, setFormError] = useState('');
   const [values, setValues] = useState({
@@ -93,6 +94,7 @@ function Signup() {
         return;
       }
 
+      setHasSession(Boolean(data.session));
       setResultMessage(
         data.session
           ? 'Your account has been created successfully.'
@@ -115,7 +117,7 @@ function Signup() {
           title="We’ll keep it safe."
           body={resultMessage || 'Add a memory whenever you like. Invite your family when you want them beside you.'}
           action={(
-            <Link to="/" className={authSubmitClass}>
+            <Link to={hasSession ? '/dashboard' : '/'} className={authSubmitClass}>
               Go to your archive
               <ArrowIcon />
             </Link>

@@ -67,26 +67,40 @@ export const Header = () => {
           </a>
         ))}
         {!loading && user ? (
-          <button
-            type="button"
-            className="inline-flex min-h-11 items-center border-0 bg-transparent p-0 text-left text-sm hover:underline disabled:cursor-wait disabled:opacity-60 desk:hidden"
-            onClick={handleLogout}
-            disabled={signingOut}
-          >
-            {signingOut ? 'Logging out…' : 'Log out'}
-          </button>
+          <>
+            <Link
+              to="/dashboard"
+              className="inline-flex min-h-11 items-center text-sm hover:underline desk:hidden"
+              onClick={closeMenu}
+            >
+              Your archive
+            </Link>
+            <button
+              type="button"
+              className="inline-flex min-h-11 items-center border-0 bg-transparent p-0 text-left text-sm hover:underline disabled:cursor-wait disabled:opacity-60 desk:hidden"
+              onClick={handleLogout}
+              disabled={signingOut}
+            >
+              {signingOut ? 'Logging out…' : 'Log out'}
+            </button>
+          </>
         ) : null}
       </nav>
       <div className="hidden items-center gap-5 desk:flex">
         {!loading && user ? (
-          <button
-            type="button"
-            className="inline-flex min-h-11 items-center border-0 bg-transparent p-0 text-sm hover:underline disabled:cursor-wait disabled:opacity-60"
-            onClick={handleLogout}
-            disabled={signingOut}
-          >
-            {signingOut ? 'Logging out…' : 'Log out'}
-          </button>
+          <>
+            <Link to="/dashboard" className="inline-flex min-h-11 items-center text-sm hover:underline">
+              Your archive
+            </Link>
+            <button
+              type="button"
+              className="inline-flex min-h-11 items-center border-0 bg-transparent p-0 text-sm hover:underline disabled:cursor-wait disabled:opacity-60"
+              onClick={handleLogout}
+              disabled={signingOut}
+            >
+              {signingOut ? 'Logging out…' : 'Log out'}
+            </button>
+          </>
         ) : null}
         {!loading && !user ? (
           <>
