@@ -28,6 +28,12 @@ export const closedNav =
 export const openNav =
   'absolute top-[65px] right-[18px] z-50 flex flex-col items-stretch gap-8 bg-paper p-4 shadow-[0_15px_35px_#1e2e28] desk:static desk:z-auto desk:flex-row desk:items-center desk:bg-transparent desk:p-0 desk:shadow-none';
 
+export const archiveClosedNav =
+  'hidden items-center gap-2 desk:flex desk:flex-wrap desk:justify-end';
+
+export const archiveOpenNav =
+  'absolute top-[70px] right-[5vw] left-[5vw] z-50 flex flex-col items-stretch gap-2 bg-paper p-4 shadow-[0_15px_35px_#1e2e28] desk:static desk:inset-auto desk:z-auto desk:w-auto desk:flex-row desk:flex-wrap desk:justify-end desk:bg-transparent desk:p-0 desk:shadow-none';
+
 export const authFormClass = 'flex w-full flex-col gap-6';
 
 export const authSubmitClass = `${primaryButton} auth-submit w-full transition-colors duration-200 hover:bg-deep disabled:cursor-wait disabled:opacity-60 desk:ml-auto desk:w-auto`;

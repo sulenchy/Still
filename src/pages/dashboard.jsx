@@ -21,7 +21,6 @@ function DashboardPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState('archive');
-  const [menuOpen, setMenuOpen] = useState(false);
   const [memories, setMemories] = useState(starterMemories);
   const [people, setPeople] = useState(starterPeople);
   const [capsules, setCapsules] = useState(starterCapsules);
@@ -54,14 +53,12 @@ function DashboardPage() {
     if (next !== 'memories') setSelectedId('');
     setJustAddedId('');
     setView(next);
-    setMenuOpen(false);
   };
 
   const openMemory = (id) => {
     setSelectedId(id);
     setJustAddedId('');
     setView('memories');
-    setMenuOpen(false);
   };
 
   const addMemory = (memory) => {
@@ -69,7 +66,6 @@ function DashboardPage() {
     setJustAddedId(memory.id);
     setSelectedId(memory.id);
     setView('memories');
-    setMenuOpen(false);
   };
 
   const handleSignOut = async () => {
@@ -153,9 +149,6 @@ function DashboardPage() {
   return (
     <DashboardShell
       view={view}
-      menuOpen={menuOpen}
-      onToggleMenu={() => setMenuOpen((open) => !open)}
-      onCloseMenu={() => setMenuOpen(false)}
       onView={showView}
       onSignOut={handleSignOut}
       signingOut={signingOut}
