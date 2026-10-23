@@ -85,6 +85,24 @@ export const Header = () => {
             </button>
           </>
         ) : null}
+        {!loading && !user ? (
+          <>
+            <Link
+              to="/login"
+              className="inline-flex min-h-11 items-center text-sm hover:underline desk:hidden"
+              onClick={closeMenu}
+            >
+              Sign in
+            </Link>
+            <Link
+              to="/signup"
+              className={`${primaryButton} desk:hidden`}
+              onClick={closeMenu}
+            >
+              Start your archive
+            </Link>
+          </>
+        ) : null}
       </nav>
       <div className="hidden items-center gap-5 desk:flex">
         {!loading && user ? (
