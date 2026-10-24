@@ -19,6 +19,7 @@
 - ♿ **[Web Accessibility Architecture](#-web-accessibility-in-practice-a11y-first-engineering)**
 - 🚀 **[Quick Start & Preview](#-quick-start)**
 - 🔐 **[Supabase](#-supabase)**
+- 🧭 **[Direct routes in production](#-direct-routes-in-production)**
 - 📐 **[Design System & Tokens](#-design-system--tokens)**
 - 🗂️ **[Original HTML & CSS landing](old-template/)**
 
@@ -225,6 +226,41 @@ Forgot password stays on `/login`. Sending it shows a local note and does not ca
 ### What stays in the browser
 
 Memories, family invites, time capsules, and files chosen on Add a moment stay in React state for that visit. Refreshing the page restores the starter archive in `src/constants/dashboard.js`. The app does not write those records to a Supabase table or Storage bucket.
+
+---
+
+## 🧭 Direct routes in production
+
+The live site is the [Render](https://render.com/docs/static-sites) static site at <https://still-rg7h.onrender.com/>. `createBrowserRouter` in `src/app.jsx` registers real paths: `/`, `/login`, `/signup`, and `/dashboard`.
+
+### The challenge
+
+Typing `/login`, `/signup`, or `/dashboard` in the address bar, or refreshing one of those pages, showed React Router’s “404 Not Found” page. Choosing Sign in, Start your archive, or Your archive inside the app still opened the right screen. `pnpm dev` and `pnpm preview` opened the same paths correctly.
+
+Vite’s dev server returns `index.html` for an unknown path and leaves the address as it was. A React Router `<Link>` never asks the host for a new document. A full page load does. Production answered that load with a **301** to `/index.html`:
+
+| Request | Response |
+| :--- | :--- |
+| `/login`, `/signup`, `/dashboard` | `301` to `/index.html` |
+| `/` and `/index.html` | `200`, the app shell |
+
+The browser followed the redirect, so the address became `/index.html`. React Router looked up that pathname, found no route, and rendered its default 404. The path the person had typed was already gone.
+
+Publishing copies of the built shell as `dist/login.html`, `dist/signup.html`, and `dist/dashboard.html` did not remove the 404. Those files answered `200` at `/login.html`, and `/login` still redirected. Render applies a redirect when no file exists at the requested path, and `/login` is a different path from `/login.html`.
+
+### The fix
+
+On the static site, open **Redirects/Rewrites** and keep a single rule:
+
+| Field | Value |
+| :--- | :--- |
+| Source | `/*` |
+| Destination | `/index.html` |
+| Action | **Rewrite** |
+
+A redirect sends the browser to a new address. A rewrite returns `index.html` with status `200` and leaves the address on `/login`, so React Router still sees `/login`. Render skips the rule when a real file is already at that path, so `/assets/*.js` and the images stay themselves.
+
+The rule is set on the Render service. It is not in this repo. After it is saved, `/login`, `/signup`, and `/dashboard` return `200` and keep their paths. Check in a private window, because browsers cache a `301`.
 
 ---
 
