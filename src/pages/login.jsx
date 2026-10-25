@@ -21,7 +21,6 @@ import {
 
 import { signInFields, resetFields, signInViews } from '../constants/data.js';
 
-
 function Login() {
   const [intent, setIntent] = useState('sign-in');
   const [panel, setPanel] = useState('');

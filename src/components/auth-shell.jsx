@@ -1,8 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { editorial, kicker } from '../constants/class-names';
 import { BrandIcon } from './brand-icon.jsx';
 import { SkipLink } from './skip-link.jsx';
-import { authFormClass } from '../constants/class-names';
 
 
 export default function AuthShell({
@@ -22,6 +21,8 @@ export default function AuthShell({
       document.title = previous;
     };
   }, [documentTitle]);
+
+  useEffect
 
   return (
     <>

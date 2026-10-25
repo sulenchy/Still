@@ -13,7 +13,10 @@ function ProtectedRoute() {
     return <Navigate to="/login" replace />;
   }
 
+  
+
   return <Outlet />;
 }
+
 
 export default ProtectedRoute;

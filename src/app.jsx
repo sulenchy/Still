@@ -10,7 +10,7 @@ import {
   DashboardPage
 } from './pages'
 
-import { ProtectedRoute } from './components';
+import { GuestRoute, ProtectedRoute } from './components';
 import { AuthProvider } from './auth/auth-provider';
 import { dashboardPath, loginPath, signupPath } from './constants/routes.js';
 
@@ -18,13 +18,18 @@ const router = createBrowserRouter([  {
     path: '/',
     element: <HomePage />,
   },
-   {
-    path: loginPath,
-    element: <LoginPage />,
-  },
   {
-    path: signupPath,
-    element: <SignupPage />,
+    element: <GuestRoute />,
+    children: [
+      {
+        path: loginPath,
+        element: <LoginPage />,
+      },
+      {
+        path: signupPath,
+        element: <SignupPage />,
+      }
+    ],
   },
    {
     element: <ProtectedRoute />,
