@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../features/auth/useAuth.js';
+import { selectCapsules } from '../features/archive/capsulesSlice.js';
+import { selectMemories } from '../features/archive/memoriesSlice.js';
+import { selectPeople } from '../features/archive/peopleSlice.js';
+import { presentCapsule, presentMemory, presentPerson } from '../features/archive/present.js';
 import { DashboardAccount } from '../components/dashboard-account.jsx';
 import { DashboardArchive } from '../components/dashboard-archive.jsx';
 import { DashboardCapsules } from '../components/dashboard-capsules.jsx';
@@ -12,23 +17,42 @@ import { DashboardShell } from '../components/dashboard-shell.jsx';
 import {
   dashboardTitles,
   nameFromEmail,
-  starterCapsules,
-  starterMemories,
-  starterPeople,
 } from '../constants/dashboard.js';
 
 function DashboardPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState('archive');
-  const [memories, setMemories] = useState(starterMemories);
-  const [people, setPeople] = useState(starterPeople);
-  const [capsules, setCapsules] = useState(starterCapsules);
+  const storedPeople = useSelector(selectPeople);
+  const storedMemories = useSelector(selectMemories);
+  const storedCapsules = useSelector(selectCapsules);
+  const archiveStatus = useSelector((state) => state.people.status);
+  const archiveError = useSelector((state) => state.people.error);
+  const name = nameFromEmail(user?.email);
+  const peopleById = useMemo(
+    () => Object.fromEntries(storedPeople.map((person) => [person.id, person])),
+    [storedPeople],
+  );
+  const people = useMemo(
+    () => storedPeople.map(presentPerson),
+    [storedPeople],
+  );
+  const memories = useMemo(
+    () => storedMemories.map((memory) => presentMemory(
+      memory,
+      peopleById,
+      memory.createdBy === user?.id ? (name || 'You') : 'Family',
+    )),
+    [storedMemories, peopleById, user?.id, name],
+  );
+  const capsules = useMemo(
+    () => storedCapsules.map((capsule) => presentCapsule(capsule, peopleById)),
+    [storedCapsules, peopleById],
+  );
   const [selectedId, setSelectedId] = useState('');
   const [justAddedId, setJustAddedId] = useState('');
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
-  const name = nameFromEmail(user?.email);
   const selectedRef = useRef(selectedId);
   const previousView = useRef(view);
   selectedRef.current = selectedId;
@@ -62,7 +86,6 @@ function DashboardPage() {
   };
 
   const addMemory = (memory) => {
-    setMemories((current) => [memory, ...current]);
     setJustAddedId(memory.id);
     setSelectedId(memory.id);
     setView('memories');
@@ -124,7 +147,7 @@ function DashboardPage() {
         people={people}
         memories={memories}
         signature={name ? `${name}, for later` : 'Kept for later'}
-        onCreate={(capsule) => setCapsules((current) => [capsule, ...current])}
+        onCreate={() => {}}
       />
     );
   } else if (view === 'family') {
@@ -133,7 +156,7 @@ function DashboardPage() {
         ownerName={name || 'You'}
         ownerEmail={user?.email || ''}
         people={people}
-        onInvite={(person) => setPeople((current) => [...current, person])}
+        onInvite={() => {}}
       />
     );
   } else {
@@ -154,6 +177,9 @@ function DashboardPage() {
       signingOut={signingOut}
       signOutError={signOutError}
     >
+      {archiveStatus === 'failed' && archiveError ? (
+        <p role="alert" className="mb-8 text-sm text-error">{archiveError}</p>
+      ) : null}
       {content}
     </DashboardShell>
   );

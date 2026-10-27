@@ -129,6 +129,7 @@ export function DashboardArchive({
       )}
 
       <div className="grid items-start gap-6 desk:grid-cols-[1.15fr_0.85fr]">
+        {collection.length === 0 ? null : (
         <section aria-labelledby="collection-title">
           <div className="mb-5 flex items-end justify-between gap-4">
             <h2 id="collection-title" className={`${editorial} text-[clamp(32px,4vw,44px)]`}>
@@ -173,6 +174,7 @@ export function DashboardArchive({
             ))}
           </ul>
         </section>
+        )}
 
         <div className="flex flex-col gap-4">
           {nextCapsule ? (

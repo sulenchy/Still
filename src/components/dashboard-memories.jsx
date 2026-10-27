@@ -8,6 +8,7 @@ import { privacyLabel } from '../constants/dashboard.js';
 
 function matchesFilter(memory, filter) {
   if (filter === 'All memories') return true;
+  if (filter === 'Family') return memory.privacy === 'family';
   return memory.people.includes(filter);
 }
 
@@ -140,9 +141,9 @@ export function DashboardMemories({
               Remembered by {selected.addedBy}
             </p>
             <ul className="mt-4 flex flex-wrap gap-2" aria-label="People in this memory">
-              {(selected.people.filter((person) => person !== 'Family').length
-                ? selected.people.filter((person) => person !== 'Family')
-                : ['Family']
+              {(selected.people.length
+                ? selected.people
+                : (selected.privacy === 'family' ? ['Family'] : [])
               ).map((person) => (
                 <li key={person} className="inline-flex min-h-11 items-center rounded-full bg-pale px-4 text-sm">
                   {person}
