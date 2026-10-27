@@ -1,9 +1,7 @@
 import '../styles.css';
 import {
   editorial,
-  fieldClass,
   kicker,
-  primaryButton,
 } from '../constants/class-names.js';
 import { roles, steps } from '../constants/data.js';
 import { SkipLink } from '../components/skip-link.jsx';

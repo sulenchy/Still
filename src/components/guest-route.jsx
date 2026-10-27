@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Outlet } from 'react-router';
-import { useAuth } from '../auth/auth-provider.jsx';
+import { useAuth } from '../features/auth/useAuth.js';
 import { dashboardPath } from '../constants/routes.js';
 
 function GuestRoute() {
