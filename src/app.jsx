@@ -11,7 +11,7 @@ import {
 } from './pages'
 
 import { GuestRoute, ProtectedRoute } from './components';
-import { AuthProvider } from './auth/auth-provider';
+import AuthListener from './features/auth/AuthListener.jsx';
 import { dashboardPath, loginPath, signupPath } from './constants/routes.js';
 
 const router = createBrowserRouter([  {
@@ -42,9 +42,13 @@ const router = createBrowserRouter([  {
   },
 ]);
 
-function App() {  return (<AuthProvider>
-    <RouterProvider router={router} />
-  </AuthProvider>)
+function App() {
+  return (
+    <>
+      <AuthListener />
+      <RouterProvider router={router} />
+    </>
+  );
 }
 
 export default App;

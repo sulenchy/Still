@@ -9,7 +9,7 @@ import {
   primaryButton,
 } from '../constants/class-names';
 import { links } from '../constants/data';
-import { useAuth } from '../auth/auth-provider';
+import { useAuth } from '../features/auth/useAuth.js';
 
 const textActionClass = 'inline-flex min-h-11 items-center text-sm hover:underline';
 

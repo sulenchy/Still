@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useAuth } from '../auth/auth-provider.jsx';
+import { useAuth } from '../features/auth/useAuth.js';
 import { DashboardAccount } from '../components/dashboard-account.jsx';
 import { DashboardArchive } from '../components/dashboard-archive.jsx';
 import { DashboardCapsules } from '../components/dashboard-capsules.jsx';

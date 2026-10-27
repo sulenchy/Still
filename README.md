@@ -144,8 +144,10 @@ Still/
 │   ├── main.jsx               # React root
 │   ├── app.jsx                # Routes: home, login, signup, dashboard
 │   ├── styles.css             # Tailwind theme and base rules
-│   ├── auth/
-│   │   └── auth-provider.jsx  # Session and sign-out
+│   ├── app/
+│   │   └── store.js           # Redux store
+│   ├── features/
+│   │   └── auth/              # Session slice, listener, and sign-out
 │   ├── lib/
 │   │   └── supabase.js        # Supabase client
 │   ├── pages/                 # Landing, login, signup, dashboard
@@ -215,7 +217,7 @@ In Authentication, enable the Email provider. If **Confirm email** is on, a new 
 
 - **Sign up** (`/signup`) validates the email and password, then calls `supabase.auth.signUp`. When Supabase returns a session, “Go to your archive” opens `/dashboard`. When it does not, the welcome screen says to check email and the button returns home.
 - **Sign in** (`/login`) calls `supabase.auth.signInWithPassword`. A successful sign-in offers “Open the archive”, which goes to `/dashboard`. Unknown email or password shows “Email or password is incorrect.”
-- **Session** lives in `AuthProvider` (`src/auth/auth-provider.jsx`). It loads the session with `getSession` and follows later changes with `onAuthStateChange`. `useAuth` exposes `session`, `user`, `loading`, and `signOut`.
+- **Session** lives in the Redux auth slice (`src/features/auth/`). `AuthListener` loads it with `getSession` and follows later changes with `onAuthStateChange`. `useAuth` reads `user` and `loading` from the store and dispatches `signOut`. The stored user is `{ id, email }`.
 - **`/dashboard`** is behind `ProtectedRoute`. A visitor with no session is sent to `/login`. While the session is loading, the page reads “Checking your session…”.
 - **`/login` and `/signup`** are behind `GuestRoute`. Someone who already has a session is sent to `/dashboard`. The check is made when that page opens, so a sign-in or signup that just created a session can still show its confirmation on that page. Opening either address again goes to the archive.
 - **Log out**, in the marketing header and on the account view, calls `supabase.auth.signOut()` and then reads `getSession()` again. The person is logged out when that stored session is gone, and is returned to `/login` from the account view. If a session is still there, the header stays signed in and shows the error.
