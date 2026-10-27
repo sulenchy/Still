@@ -11,6 +11,7 @@ import {
 } from './pages'
 
 import { GuestRoute, ProtectedRoute } from './components';
+import ArchiveListener from './features/archive/ArchiveListener.jsx';
 import AuthListener from './features/auth/AuthListener.jsx';
 import { dashboardPath, loginPath, signupPath } from './constants/routes.js';
 
@@ -46,6 +47,7 @@ function App() {
   return (
     <>
       <AuthListener />
+      <ArchiveListener />
       <RouterProvider router={router} />
     </>
   );
