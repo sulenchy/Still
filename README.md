@@ -19,6 +19,7 @@
 - ♿ **[Web Accessibility Architecture](#-web-accessibility-in-practice-a11y-first-engineering)**
 - 🚀 **[Quick Start & Preview](#-quick-start)**
 - 🔐 **[Supabase](#-supabase)**
+- 🗄️ **[Migrations](#migrations)**
 - 🧭 **[Direct routes in production](#-direct-routes-in-production)**
 - 📐 **[Design System & Tokens](#-design-system--tokens)**
 - 🗂️ **[Original HTML & CSS landing](old-template/)**
@@ -140,6 +141,8 @@ Still/
 ├── vite.config.js             # React and Tailwind Vite plugins
 ├── public/
 │   └── images/                # AVIF imagery used by the app
+├── supabase/
+│   └── migrations/            # SQL applied with the Supabase CLI
 ├── src/
 │   ├── main.jsx               # React root
 │   ├── app.jsx                # Routes: home, login, signup, dashboard
@@ -208,10 +211,58 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
 | :--- | :--- |
 | `VITE_SUPABASE_URL` | `https://bhqsucwdkfvaofmirsqc.supabase.co`, also shown in the Connect dialog |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | The publishable key from the Connect dialog, or from Settings → API Keys |
+| `DB_PSWD` | The database password from Project Settings → Database. The Supabase CLI uses it. The app does not. |
 
-There is no separate Settings → API page. The publishable key is safe to ship in the browser. The secret key is not read by the app. Do not put it in `.env.local`, and do not give it a `VITE_` name: Vite inlines every `VITE_` variable into the bundle. The client throws on startup if the URL or the publishable key is missing. `pnpm dev` and `pnpm build` both need the two variables, because the production bundle bakes them in at build time.
+There is no separate Settings → API page. The publishable key is safe to ship in the browser. The secret key is not read by the app. Do not put it in `.env.local`, and do not give it a `VITE_` name: Vite inlines every `VITE_` variable into the bundle. `DB_PSWD` must stay without a `VITE_` name for the same reason. The client throws on startup if the URL or the publishable key is missing. `pnpm dev` and `pnpm build` both need those two variables, because the production bundle bakes them in at build time.
 
 In Authentication, enable the Email provider. If **Confirm email** is on, a new account has no session until the person opens the confirmation link. If it is off, signup returns a session immediately.
+
+### Migrations
+
+Schema changes live in `supabase/migrations`. Each file runs once, in timestamp order, and the remote database records that version. The first file is `supabase/migrations/20261027160000_create_archive.sql`. It creates the archive tables, row-level security, and the private `archive-media` bucket. That file is already applied on the hosted project. Leave it as it is.
+
+Install the [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) (`brew install supabase/tap/supabase`). This repo has no `config.toml` and the commands below do not need `supabase login`. They connect with `DB_PSWD` from `.env.local`. Run them from the repository root.
+
+If the password contains characters such as `@`, `:`, `/`, or `#`, the connection string needs those characters percent-encoded. This reads `.env.local` and builds that string:
+
+```bash
+DB_URL=$(python3 << 'PY'
+import urllib.parse
+env = {}
+for line in open(".env.local"):
+    line = line.strip()
+    if not line or line.startswith("#") or "=" not in line:
+        continue
+    key, value = line.split("=", 1)
+    env[key.strip()] = value.strip().strip('"').strip("'")
+password = urllib.parse.quote(env["DB_PSWD"], safe="")
+print(f"postgresql://postgres:{password}@db.bhqsucwdkfvaofmirsqc.supabase.co:5432/postgres")
+PY
+)
+```
+
+See which files are applied:
+
+```bash
+supabase migration list --db-url "$DB_URL"
+```
+
+Check what a push would send, then apply only the files the remote history does not have:
+
+```bash
+supabase db push --db-url "$DB_URL" --dry-run
+supabase db push --db-url "$DB_URL" --yes
+```
+
+`--dry-run` prints the pending file names and does not change the database. `--yes` answers the confirm prompt. Without `--yes`, the CLI asks before it applies anything.
+
+For the next change, add a new file and push that file. Do not edit a migration that is already on the remote.
+
+```bash
+supabase migration new describe_the_change
+```
+
+That writes `supabase/migrations/<timestamp>_describe_the_change.sql`. Put the SQL there, run the dry run, then `supabase db push`.
 
 ### What the app calls
 
@@ -228,6 +279,46 @@ Forgot password stays on `/login`. Sending it shows a local note and does not ca
 ### What stays in the browser
 
 Memories, family invites, time capsules, and files chosen on Add a moment stay in React state for that visit. Refreshing the page restores the starter archive in `src/constants/dashboard.js`. The app does not write those records to a Supabase table or Storage bucket.
+
+---
+
+### Dashboard data structure
+
+archives
+  id, owner_id, created_at
+
+profiles
+  id              -- same as auth.users.id
+  display_name    -- optional; until set, keep deriving a name from the email in the UI
+
+people
+  id, archive_id, name, email, role, created_at
+  role: family_member | contributor | viewer
+  unique (archive_id, email)
+
+memories
+  id, archive_id, created_by, created_at
+  title, story, place, happened_on
+  kind: photo | story | voice | video
+  privacy: private | family
+  voice_speaker, voice_transcript     -- both optional
+
+memory_people
+  memory_id, person_id
+
+memory_assets
+  id, memory_id
+  role: image | video | audio
+  storage_path, mime_type, bytes
+  alt, duration_seconds
+
+capsules
+  id, archive_id, created_by, created_at
+  title, recipient_id, opens_on, message, signature
+  sealed_at          -- null while it is still gathering
+
+capsule_memories
+  capsule_id, memory_id, position
 
 ---
 
