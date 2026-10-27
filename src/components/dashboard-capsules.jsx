@@ -36,14 +36,17 @@ export function DashboardCapsules({ capsules, people, memories, signature, onCre
   });
   const [memoryIds, setMemoryIds] = useState([]);
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState('');
   const [status, setStatus] = useState('');
+  const [saving, setSaving] = useState(false);
   const queueFocus = useQueuedFocus();
-  const messages = [...new Set(Object.values(errors).filter(Boolean))];
+  const messages = [...new Set([formError, ...Object.values(errors)].filter(Boolean))];
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setValues((current) => ({ ...current, [name]: value }));
     setStatus('');
+    setFormError('');
     setErrors((current) => (current[name] ? { ...current, [name]: '' } : current));
   };
 
@@ -53,8 +56,9 @@ export function DashboardCapsules({ capsules, people, memories, signature, onCre
     ));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (saving) return;
     const nextErrors = {};
     if (!values.title.trim()) nextErrors.title = 'Title is required';
     if (!values.recipient) nextErrors.recipient = 'Choose who this is for';
@@ -62,6 +66,7 @@ export function DashboardCapsules({ capsules, people, memories, signature, onCre
     else if (values.opens < isoDaysFromNow(1)) nextErrors.opens = 'Choose a day in the future';
     if (!values.message.trim()) nextErrors.message = 'A note for that day is required';
     setErrors(nextErrors);
+    setFormError('');
     setStatus('');
 
     const invalidId = firstErrorId(nextErrors, fields);
@@ -71,21 +76,27 @@ export function DashboardCapsules({ capsules, people, memories, signature, onCre
     }
 
     const recipient = people.find((person) => person.id === values.recipient);
-    onCreate({
-      id: `capsule-${Date.now()}`,
-      title: values.title.trim(),
-      recipient: recipient?.name || 'Family',
-      opens: values.opens,
-      message: values.message.trim(),
-      signature: signature || 'Kept for later',
-      memoryIds: [...memoryIds],
-      status: memoryIds.length ? 'Sealed' : 'Gathering',
-    });
-    setValues({ title: '', recipient: '', opens: '', message: '' });
-    setMemoryIds([]);
-    setStatus(memoryIds.length
-      ? `Sealed for ${recipient?.name || 'your family'}.`
-      : `Started for ${recipient?.name || 'your family'}. Add memories whenever you’re ready.`);
+    const chosenIds = [...memoryIds];
+    setSaving(true);
+    try {
+      await onCreate({
+        title: values.title.trim(),
+        recipientId: values.recipient,
+        opensOn: values.opens,
+        message: values.message.trim(),
+        signature: signature || 'Kept for later',
+        memoryIds: chosenIds,
+      });
+      setValues({ title: '', recipient: '', opens: '', message: '' });
+      setMemoryIds([]);
+      setStatus(chosenIds.length
+        ? `Sealed for ${recipient?.name || 'your family'}.`
+        : `Started for ${recipient?.name || 'your family'}. Add memories whenever you’re ready.`);
+    } catch (error) {
+      setFormError(error?.message || 'Could not seal that capsule.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -232,8 +243,10 @@ export function DashboardCapsules({ capsules, people, memories, signature, onCre
               ))}
             </div>
           </fieldset>
-          <button type="submit" className={`${primaryButton} self-start`}>
-            {memoryIds.length ? 'Seal this capsule' : 'Start this capsule'}
+          <button type="submit" className={`${primaryButton} self-start`} disabled={saving}>
+            {saving
+              ? 'Saving this capsule'
+              : (memoryIds.length ? 'Seal this capsule' : 'Start this capsule')}
             <ArrowIcon />
           </button>
         </form>

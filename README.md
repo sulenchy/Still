@@ -150,7 +150,8 @@ Still/
 │   ├── app/
 │   │   └── store.js           # Redux store
 │   ├── features/
-│   │   └── auth/              # Session slice, listener, and sign-out
+│   │   ├── auth/              # Session slice, listener, and sign-out
+│   │   └── archive/           # Saved people, memories, capsules, and files
 │   ├── lib/
 │   │   └── supabase.js        # Supabase client
 │   ├── pages/                 # Landing, login, signup, dashboard
@@ -276,9 +277,11 @@ That writes `supabase/migrations/<timestamp>_describe_the_change.sql`. Put the S
 
 Forgot password stays on `/login`. Sending it shows a local note and does not call `supabase.auth.resetPasswordForEmail`, so Supabase sends no reset email.
 
-### What stays in the browser
+### Saved archive
 
-Memories, family invites, time capsules, and files chosen on Add a moment stay in React state for that visit. Refreshing the page restores the starter archive in `src/constants/dashboard.js`. The app does not write those records to a Supabase table or Storage bucket.
+The signed-in archive is stored in Supabase. After sign-in, the dashboard loads that account’s people, memories, and capsules. An invite, a moment, and a capsule are written from those forms. A chosen file is uploaded to the private `archive-media` bucket. Refreshing the dashboard reads the saved rows again.
+
+The landing-page gallery stays in `src/constants/data.js`. Those stories are the public page, not the signed-in archive.
 
 ---
 

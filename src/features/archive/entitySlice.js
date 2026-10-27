@@ -27,7 +27,29 @@ function replaceEntities(state, items) {
   state.error = '';
 }
 
-export function createEntitySlice({ name, selectItems, newest = false }) {
+function remember(state, item, { newest = false, place = 'end' } = {}) {
+  if (!item?.id) return;
+  const known = Boolean(state.byId[item.id]);
+  state.byId[item.id] = item;
+  if (!known) {
+    if (place === 'start') state.ids.unshift(item.id);
+    else state.ids.push(item.id);
+  }
+  if (newest) {
+    const ordered = newestFirst(state.ids.map((id) => state.byId[id]));
+    state.ids = ordered.map((entry) => entry.id);
+  }
+  state.status = 'ready';
+  state.error = '';
+}
+
+export function createEntitySlice({
+  name,
+  selectItems,
+  newest = false,
+  saved = null,
+  place = 'end',
+}) {
   return createSlice({
     name,
     initialState: emptyEntityState(),
@@ -46,7 +68,12 @@ export function createEntitySlice({ name, selectItems, newest = false }) {
         })
         .addCase(loadArchiveForUser.fulfilled, (state, action) => {
           if (state.userId !== action.payload.userId) return;
-          const items = selectItems(action.payload);
+          const incoming = selectItems(action.payload);
+          const incomingIds = new Set(incoming.map((item) => item.id));
+          const kept = state.ids
+            .map((id) => state.byId[id])
+            .filter((item) => item && !incomingIds.has(item.id));
+          const items = [...incoming, ...kept];
           replaceEntities(state, newest ? newestFirst(items) : items);
         })
         .addCase(loadArchiveForUser.rejected, (state, action) => {
@@ -58,6 +85,12 @@ export function createEntitySlice({ name, selectItems, newest = false }) {
             || 'Could not open your archive.';
         })
         .addCase(archiveCleared, () => emptyEntityState());
+
+      if (saved) {
+        builder.addCase(saved.fulfilled, (state, action) => {
+          remember(state, action.payload, { newest, place });
+        });
+      }
     },
   });
 }

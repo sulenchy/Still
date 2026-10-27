@@ -1,6 +1,12 @@
 import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
 
-import { loadArchive } from './api.js';
+import {
+  createCapsule,
+  createMemory,
+  createPerson,
+  loadArchive,
+  roleValues,
+} from './api.js';
 
 export const archiveCleared = createAction('archive/cleared');
 
@@ -33,4 +39,36 @@ export const loadArchiveForUser = createAsyncThunk(
       return !(current.userId === userId && settled);
     },
   },
+);
+
+function savedOrRejected(work, fallback) {
+  return async (input, { rejectWithValue }) => {
+    try {
+      return await work(input);
+    } catch (error) {
+      return rejectWithValue(error?.message || fallback);
+    }
+  };
+}
+
+export const invitePerson = createAsyncThunk(
+  'people/invite',
+  savedOrRejected(
+    ({ name, email, role }) => createPerson({
+      name,
+      email,
+      role: roleValues[role] || role,
+    }),
+    'Could not invite that person.',
+  ),
+);
+
+export const keepMemory = createAsyncThunk(
+  'memories/keep',
+  savedOrRejected(createMemory, 'Could not keep that moment.'),
+);
+
+export const keepCapsule = createAsyncThunk(
+  'capsules/keep',
+  savedOrRejected(createCapsule, 'Could not seal that capsule.'),
 );

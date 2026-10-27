@@ -38,8 +38,6 @@ export function DashboardMemories({
 }) {
   const [filter, setFilter] = useState('All memories');
   const [query, setQuery] = useState('');
-  const [playingId, setPlayingId] = useState('');
-  const [voiceMessage, setVoiceMessage] = useState('');
   const filters = [
     { id: 'all', label: 'All memories' },
     { id: 'family', label: 'Family' },
@@ -52,8 +50,6 @@ export function DashboardMemories({
   const selected = memories.find((memory) => memory.id === selectedId) || null;
 
   useEffect(() => {
-    setPlayingId('');
-    setVoiceMessage('');
     if (!selected) return undefined;
     document.getElementById('memory-detail')?.focus();
     return undefined;
@@ -78,14 +74,6 @@ export function DashboardMemories({
     window.requestAnimationFrame(() => {
       document.getElementById(openerId)?.focus();
     });
-  };
-
-  const toggleVoice = (memory) => {
-    const nextPlaying = playingId !== memory.id;
-    setPlayingId(nextPlaying ? memory.id : '');
-    setVoiceMessage(nextPlaying
-      ? `Playing ${memory.voice.speaker}’s voice.`
-      : `${memory.voice.speaker}’s voice paused.`);
   };
 
   return (
@@ -156,21 +144,12 @@ export function DashboardMemories({
                   <audio className="w-full min-h-11" controls preload="metadata" src={selected.audioSrc}>
                     This recording can’t play in the browser.
                   </audio>
-                ) : (
-                  <button
-                    type="button"
-                    className={primaryButton}
-                    aria-pressed={playingId === selected.id}
-                    onClick={() => toggleVoice(selected)}
-                  >
-                    {playingId === selected.id ? 'Pause' : 'Play'} {selected.voice.speaker}’s voice
-                    <span className="text-white/70">{selected.voice.duration}</span>
-                  </button>
-                )}
-                <p className="sr-only" aria-live="polite">{voiceMessage}</p>
-                <blockquote className="mt-4 border-l border-peach pl-4 font-serif text-[20px] leading-[1.4] italic">
-                  “{selected.voice.transcript}”
-                </blockquote>
+                ) : null}
+                {selected.voice.transcript ? (
+                  <blockquote className="mt-4 border-l border-peach pl-4 font-serif text-[20px] leading-[1.4] italic">
+                    “{selected.voice.transcript}”
+                  </blockquote>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -248,10 +227,7 @@ export function DashboardMemories({
                     type="button"
                     className="mt-4 inline-flex min-h-11 items-center gap-2 self-start text-sm"
                     aria-label={`Open ${memory.title}`}
-                    onClick={() => {
-                      setPlayingId('');
-                      onOpen(memory.id);
-                    }}
+                    onClick={() => onOpen(memory.id)}
                   >
                     Open
                     <ArrowIcon />

@@ -20,9 +20,11 @@ function roleMeta(roleName) {
 export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
   const [values, setValues] = useState({ name: '', email: '', role: 'Family member' });
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState('');
   const [status, setStatus] = useState('');
+  const [saving, setSaving] = useState(false);
   const queueFocus = useQueuedFocus();
-  const messages = [...new Set(Object.values(errors).filter(Boolean))];
+  const messages = [...new Set([formError, ...Object.values(errors)].filter(Boolean))];
   const owner = roleMeta('Owner');
   const members = [
     {
@@ -38,11 +40,13 @@ export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
     const { name, value } = event.target;
     setValues((current) => ({ ...current, [name]: value }));
     setStatus('');
+    setFormError('');
     setErrors((current) => (current[name] ? { ...current, [name]: '' } : current));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (saving) return;
     const nextErrors = {};
     const name = values.name.trim();
     const email = values.email.trim();
@@ -58,6 +62,7 @@ export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
     else if (known.has(email.toLowerCase())) nextErrors.email = 'That person is already in this archive.';
     if (!inviteRoles.includes(values.role)) nextErrors.role = 'Choose a role';
     setErrors(nextErrors);
+    setFormError('');
     setStatus('');
 
     const invalidId = firstErrorId(nextErrors, fields);
@@ -66,14 +71,16 @@ export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
       return;
     }
 
-    onInvite({
-      id: `person-${Date.now()}`,
-      name,
-      email,
-      role: values.role,
-    });
-    setValues({ name: '', email: '', role: values.role });
-    setStatus(`${name} is invited as a ${values.role.toLowerCase()}.`);
+    setSaving(true);
+    try {
+      await onInvite({ name, email, role: values.role });
+      setValues({ name: '', email: '', role: values.role });
+      setStatus(`${name} is invited as a ${values.role.toLowerCase()}.`);
+    } catch (error) {
+      setFormError(error?.message || 'Could not invite that person.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -185,8 +192,8 @@ export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
               </p>
             ) : null}
           </div>
-          <button type="submit" className={`${primaryButton} self-start`}>
-            Invite to the archive
+          <button type="submit" className={`${primaryButton} self-start`} disabled={saving}>
+            {saving ? 'Inviting' : 'Invite to the archive'}
             <ArrowIcon />
           </button>
         </form>

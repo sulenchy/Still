@@ -1,8 +1,10 @@
+import { invitePerson } from './archiveActions.js';
 import { createEntitySlice, selectEntities } from './entitySlice.js';
 
 const peopleSlice = createEntitySlice({
   name: 'people',
   selectItems: (payload) => payload.people,
+  saved: invitePerson,
 });
 
 export function selectPeople(state) {

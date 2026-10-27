@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../features/auth/useAuth.js';
+import { invitePerson, keepCapsule, keepMemory } from '../features/archive/archiveActions.js';
 import { selectCapsules } from '../features/archive/capsulesSlice.js';
 import { selectMemories } from '../features/archive/memoriesSlice.js';
 import { selectPeople } from '../features/archive/peopleSlice.js';
@@ -19,7 +20,17 @@ import {
   nameFromEmail,
 } from '../constants/dashboard.js';
 
+function unwrapArchive(dispatch, thunk, input) {
+  return dispatch(thunk(input)).then((result) => {
+    if (thunk.rejected.match(result)) {
+      throw new Error(result.payload || result.error?.message || 'Could not save that.');
+    }
+    return result.payload;
+  });
+}
+
 function DashboardPage() {
+  const dispatch = useDispatch();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState('archive');
@@ -85,11 +96,16 @@ function DashboardPage() {
     setView('memories');
   };
 
-  const addMemory = (memory) => {
+  const saveMemory = async (input) => {
+    const memory = await unwrapArchive(dispatch, keepMemory, input);
     setJustAddedId(memory.id);
     setSelectedId(memory.id);
     setView('memories');
   };
+
+  const savePerson = (input) => unwrapArchive(dispatch, invitePerson, input);
+
+  const saveCapsule = (input) => unwrapArchive(dispatch, keepCapsule, input);
 
   const handleSignOut = async () => {
     if (signingOut) return;
@@ -135,9 +151,8 @@ function DashboardPage() {
     content = (
       <DashboardMoment
         people={people}
-        memories={memories}
         addedBy={name || 'You'}
-        onCreate={addMemory}
+        onCreate={saveMemory}
       />
     );
   } else if (view === 'capsules') {
@@ -147,7 +162,7 @@ function DashboardPage() {
         people={people}
         memories={memories}
         signature={name ? `${name}, for later` : 'Kept for later'}
-        onCreate={() => {}}
+        onCreate={saveCapsule}
       />
     );
   } else if (view === 'family') {
@@ -156,7 +171,7 @@ function DashboardPage() {
         ownerName={name || 'You'}
         ownerEmail={user?.email || ''}
         people={people}
-        onInvite={() => {}}
+        onInvite={savePerson}
       />
     );
   } else {

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowIcon } from './arrow-icon.jsx';
 import { DashboardIntro, FormAlert, paperCard } from './dashboard-shell.jsx';
 import { fieldClass, primaryButton } from '../constants/class-names.js';
+import { kindValues } from '../features/archive/api.js';
 import {
-  formatMemoryDate,
   momentKinds,
   privacyChoices,
 } from '../constants/dashboard.js';
@@ -19,7 +19,7 @@ const fields = [
 
 const kindNotes = {
   Photo: 'The photograph and the story stay together.',
-  Video: 'Playback stays in this browser for the visit.',
+  Video: 'The video stays with this moment.',
   Voice: 'We’ll keep the words, and the recording if you add one.',
   Story: 'A few true sentences are enough.',
 };
@@ -28,13 +28,13 @@ const uploadCopy = {
   Photo: {
     label: 'Photograph',
     accept: 'image/*',
-    hint: 'Optional. Leave this blank and a sample stands in for this visit.',
+    hint: 'Optional. Leave this blank to keep the story without a photograph.',
     error: 'Choose an image file.',
   },
   Video: {
     label: 'Video',
     accept: 'video/*',
-    hint: 'Optional. Leave this blank and a sample still stands in.',
+    hint: 'Optional. Leave this blank to keep the story without a video.',
     error: 'Choose a video file.',
   },
   Voice: {
@@ -76,7 +76,7 @@ function choiceClass(selected) {
   }`;
 }
 
-export function DashboardMoment({ people, memories, addedBy, onCreate }) {
+export function DashboardMoment({ people, addedBy, onCreate }) {
   const [kind, setKind] = useState('Photo');
   const [privacy, setPrivacy] = useState('family');
   const [chosenPeople, setChosenPeople] = useState([]);
@@ -84,10 +84,12 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState('');
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
   const queueFocus = useQueuedFocus();
   const upload = uploadCopy[kind];
-  const messages = [...new Set(Object.values(errors).filter(Boolean))];
+  const messages = [...new Set([formError, ...Object.values(errors)].filter(Boolean))];
 
   useEffect(() => {
     if (!file || mediaKindOf(file) !== 'image') {
@@ -106,9 +108,9 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
     setErrors((current) => (current[name] ? { ...current, [name]: '' } : current));
   };
 
-  const togglePerson = (name) => {
+  const togglePerson = (id) => {
     setChosenPeople((current) => (
-      current.includes(name) ? current.filter((person) => person !== name) : [...current, name]
+      current.includes(id) ? current.filter((personId) => personId !== id) : [...current, id]
     ));
   };
 
@@ -129,15 +131,17 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
     setErrors((current) => ({ ...current, file: upload.error }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (saving) return;
+
     const nextErrors = {};
-    const mediaKind = file ? mediaKindOf(file) : '';
     if (file && !fileAllowed(kind, file)) nextErrors.file = upload.error;
     if (!values.title.trim()) nextErrors.title = 'Title is required';
     if (!values.date) nextErrors.date = 'Choose a date';
     if (!values.story.trim()) nextErrors.story = 'The story is required';
     setErrors(nextErrors);
+    setFormError('');
 
     const invalidId = firstErrorId(nextErrors, fields);
     if (invalidId) {
@@ -145,40 +149,25 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
       return;
     }
 
-    const taggedPeople = [...chosenPeople];
-    if (privacy === 'family' && !taggedPeople.includes('Family')) taggedPeople.unshift('Family');
-    const samples = memories.filter((memory) => memory.src && memory.mediaType !== 'video');
-    const sample = samples.length ? samples[memories.length % samples.length] : null;
-    const useSample = !file && (kind === 'Photo' || kind === 'Video');
-    const uploadedUrl = file ? URL.createObjectURL(file) : '';
-
-    onCreate({
-      id: `memory-${Date.now()}`,
-      layout: '',
-      alt: file && mediaKind === 'image'
-        ? values.title.trim()
-        : (useSample && sample ? `Sample photograph standing in for ${values.title.trim()}` : ''),
-      src: file && mediaKind !== 'audio'
-        ? uploadedUrl
-        : (useSample && sample ? sample.src : ''),
-      mediaType: file ? mediaKind : '',
-      audioSrc: file && mediaKind === 'audio' ? uploadedUrl : '',
-      date: formatMemoryDate(values.date),
-      title: values.title.trim(),
-      people: taggedPeople,
-      place: values.place.trim(),
-      story: values.story.trim(),
-      voice: kind === 'Voice'
-        ? {
-          speaker: addedBy || 'You',
-          duration: 'New',
-          transcript: values.story.trim(),
-        }
-        : null,
-      addedBy: addedBy || 'You',
-      kind,
-      privacy,
-    });
+    const story = values.story.trim();
+    setSaving(true);
+    try {
+      await onCreate({
+        title: values.title.trim(),
+        story,
+        place: values.place.trim(),
+        happenedOn: values.date,
+        kind: kindValues[kind],
+        privacy,
+        voiceSpeaker: kind === 'Voice' ? (addedBy || 'You') : null,
+        voiceTranscript: kind === 'Voice' ? story : null,
+        personIds: chosenPeople,
+        file: file || null,
+      });
+    } catch (error) {
+      setFormError(error?.message || 'Could not keep that moment.');
+      setSaving(false);
+    }
   };
 
   return (
@@ -316,13 +305,13 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
           ) : (
             <div className="grid gap-2">
               {people.map((person) => (
-                <label key={person.id} className={choiceClass(chosenPeople.includes(person.name))}>
+                <label key={person.id} className={choiceClass(chosenPeople.includes(person.id))}>
                   <input
                     type="checkbox"
                     name="moment-people"
-                    value={person.name}
-                    checked={chosenPeople.includes(person.name)}
-                    onChange={() => togglePerson(person.name)}
+                    value={person.id}
+                    checked={chosenPeople.includes(person.id)}
+                    onChange={() => togglePerson(person.id)}
                   />
                   {person.name}
                 </label>
@@ -354,8 +343,8 @@ export function DashboardMoment({ people, memories, addedBy, onCreate }) {
           <p className="max-w-[240px] text-[12px] leading-[1.5] text-muted">
             By keeping this moment, you add it to your archive.
           </p>
-          <button type="submit" className={primaryButton}>
-            Keep this moment
+          <button type="submit" className={primaryButton} disabled={saving}>
+            {saving ? 'Keeping this moment' : 'Keep this moment'}
             <ArrowIcon />
           </button>
         </div>

@@ -21,9 +21,9 @@ export function DashboardAccount({ email, onSignOut, signingOut }) {
             </dd>
           </div>
           <div>
-            <dt className="text-[9px] tracking-[0.12em] text-peach uppercase">This visit</dt>
+            <dt className="text-[9px] tracking-[0.12em] text-peach uppercase">Saved</dt>
             <dd className="mt-2 text-[14px] leading-[1.7] text-muted">
-              Moments, invitations, and capsules you add stay in this browser until saving is connected.
+              Moments, invitations, and capsules are kept with your archive. They are still here the next time you sign in.
             </dd>
           </div>
         </dl>
