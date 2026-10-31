@@ -61,6 +61,7 @@ export function DashboardArchive({
   capsules,
   onOpenMemory,
   onView,
+  canWrite = true,
 }) {
   const voices = memories.filter((memory) => memory.voice).length;
   const featured = memories[0];
@@ -98,9 +99,13 @@ export function DashboardArchive({
           ))}
         </dl>
         <div className="mt-6 flex flex-col gap-3 desk:flex-row desk:items-center">
-          <button type="button" className={primaryButton} onClick={() => onView('add')}>
-            <PlusIcon />
-            Add a moment
+          <button type="button" className={primaryButton} onClick={() => onView(canWrite === false ? 'account' : 'add')}>
+            {canWrite === false ? 'Start a subscription' : (
+              <>
+                <PlusIcon />
+                Add a moment
+              </>
+            )}
           </button>
           <button
             type="button"
@@ -121,9 +126,13 @@ export function DashboardArchive({
           <p className="mx-auto mt-4 max-w-[360px] text-[13px] leading-[1.7] text-muted">
             Start with one photo, a few words, or a voice you don’t want to lose.
           </p>
-          <button type="button" className={`${primaryButton} mt-6`} onClick={() => onView('add')}>
-            <PlusIcon />
-            Add your first memory
+          <button type="button" className={`${primaryButton} mt-6`} onClick={() => onView(canWrite === false ? 'account' : 'add')}>
+            {canWrite === false ? 'Start a subscription' : (
+              <>
+                <PlusIcon />
+                Add your first memory
+              </>
+            )}
           </button>
         </div>
       )}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowIcon } from './arrow-icon.jsx';
 import { DashboardIntro, FormAlert, FormStatus, paperCard } from './dashboard-shell.jsx';
+import { WritePaused } from './write-paused.jsx';
 import { editorial, fieldClass, kicker, primaryButton } from '../constants/class-names.js';
 import { formatLongDate } from '../constants/dashboard.js';
 import { UnderlineField } from './underline-field.jsx';
@@ -27,7 +28,15 @@ function isoDaysFromNow(days) {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
-export function DashboardCapsules({ capsules, people, memories, signature, onCreate }) {
+export function DashboardCapsules({
+  capsules,
+  people,
+  memories,
+  signature,
+  onCreate,
+  canWrite = true,
+  onAccount,
+}) {
   const [values, setValues] = useState({
     title: '',
     recipient: '',
@@ -58,7 +67,7 @@ export function DashboardCapsules({ capsules, people, memories, signature, onCre
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (saving) return;
+    if (saving || canWrite !== true) return;
     const nextErrors = {};
     if (!values.title.trim()) nextErrors.title = 'Title is required';
     if (!values.recipient) nextErrors.recipient = 'Choose who this is for';
@@ -145,6 +154,9 @@ export function DashboardCapsules({ capsules, people, memories, signature, onCre
           ))}
         </section>
 
+        {canWrite === false ? (
+          <WritePaused onAccount={onAccount} />
+        ) : (
         <form className={`${paperCard} flex flex-col gap-6`} onSubmit={handleSubmit} noValidate>
           <div>
             <span className={kicker}>NEW CAPSULE</span>
@@ -243,13 +255,16 @@ export function DashboardCapsules({ capsules, people, memories, signature, onCre
               ))}
             </div>
           </fieldset>
-          <button type="submit" className={`${primaryButton} self-start`} disabled={saving}>
+          <button type="submit" className={`${primaryButton} self-start`} disabled={saving || canWrite !== true}>
             {saving
               ? 'Saving this capsule'
-              : (memoryIds.length ? 'Seal this capsule' : 'Start this capsule')}
+              : (canWrite === null
+                ? 'Checking your subscription'
+                : (memoryIds.length ? 'Seal this capsule' : 'Start this capsule'))}
             <ArrowIcon />
           </button>
         </form>
+        )}
       </div>
     </div>
   );

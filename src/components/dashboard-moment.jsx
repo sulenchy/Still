@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowIcon } from './arrow-icon.jsx';
 import { DashboardIntro, FormAlert, paperCard } from './dashboard-shell.jsx';
+import { WritePaused } from './write-paused.jsx';
 import { fieldClass, primaryButton } from '../constants/class-names.js';
 import { kindValues } from '../features/archive/api.js';
 import {
@@ -76,7 +77,7 @@ function choiceClass(selected) {
   }`;
 }
 
-export function DashboardMoment({ people, addedBy, onCreate }) {
+export function DashboardMoment({ people, addedBy, onCreate, canWrite = true, onAccount }) {
   const [kind, setKind] = useState('Photo');
   const [privacy, setPrivacy] = useState('family');
   const [chosenPeople, setChosenPeople] = useState([]);
@@ -133,7 +134,7 @@ export function DashboardMoment({ people, addedBy, onCreate }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (saving) return;
+    if (saving || canWrite !== true) return;
 
     const nextErrors = {};
     if (file && !fileAllowed(kind, file)) nextErrors.file = upload.error;
@@ -193,6 +194,9 @@ export function DashboardMoment({ people, addedBy, onCreate }) {
         </dl>
       </DashboardIntro>
 
+      {canWrite === false ? (
+        <WritePaused onAccount={onAccount} />
+      ) : (
       <form className={`${paperCard} flex flex-col gap-6`} onSubmit={handleSubmit} noValidate>
         <FormAlert id="moment-error" title="We couldn’t keep that yet." messages={messages} />
         <fieldset>
@@ -343,12 +347,13 @@ export function DashboardMoment({ people, addedBy, onCreate }) {
           <p className="max-w-[240px] text-[12px] leading-[1.5] text-muted">
             By keeping this moment, you add it to your archive.
           </p>
-          <button type="submit" className={primaryButton} disabled={saving}>
-            {saving ? 'Keeping this moment' : 'Keep this moment'}
+          <button type="submit" className={primaryButton} disabled={saving || canWrite !== true}>
+            {saving ? 'Keeping this moment' : (canWrite === null ? 'Checking your subscription' : 'Keep this moment')}
             <ArrowIcon />
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 }
