@@ -376,7 +376,7 @@ The rule is set on the Render service. It is not in this repo. After it is saved
 
 ### Stripe Testing
 
-https://docs.stripe.com/testing
+You can grab test payment data at https://docs.stripe.com/testing
 
 ---
 
