@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../features/auth/useAuth.js';
+import { useSubscription } from '../features/subscription/useSubscription.js';
 import { invitePerson, keepCapsule, keepMemory } from '../features/archive/archiveActions.js';
 import { selectCapsules } from '../features/archive/capsulesSlice.js';
 import { selectMemories } from '../features/archive/memoriesSlice.js';
@@ -14,6 +15,7 @@ import { DashboardFamily } from '../components/dashboard-family.jsx';
 import { DashboardMemories } from '../components/dashboard-memories.jsx';
 import { DashboardMoment } from '../components/dashboard-moment.jsx';
 import { DashboardShell } from '../components/dashboard-shell.jsx';
+import { SubscriptionGraceBanner } from '../components/subscription-grace-banner.jsx';
 
 import {
   dashboardTitles,
@@ -29,11 +31,23 @@ function unwrapArchive(dispatch, thunk, input) {
   });
 }
 
+function readReturnKind(params) {
+  const checkout = params.get('checkout');
+  if (checkout === 'success' || checkout === 'cancelled') return checkout;
+  if (params.get('portal') === 'return') return 'portal';
+  return '';
+}
+
 function DashboardPage() {
   const dispatch = useDispatch();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [view, setView] = useState('archive');
+  const [params, setParams] = useSearchParams();
+  const [returnKind] = useState(() => readReturnKind(params));
+  const [view, setView] = useState(returnKind ? 'account' : 'archive');
+  const subscription = useSubscription(user?.id, returnKind);
+  const canWrite = subscription.status === 'loading' ? null : subscription.isOpen;
+  const appliedReturn = useRef(false);
   const storedPeople = useSelector(selectPeople);
   const storedMemories = useSelector(selectMemories);
   const storedCapsules = useSelector(selectCapsules);
@@ -64,9 +78,20 @@ function DashboardPage() {
   const [justAddedId, setJustAddedId] = useState('');
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
+  const [dismissedGraceBanner, setDismissedGraceBanner] = useState(false);
   const selectedRef = useRef(selectedId);
   const previousView = useRef(view);
   selectedRef.current = selectedId;
+
+  useEffect(() => {
+    if (!returnKind || appliedReturn.current) return undefined;
+    appliedReturn.current = true;
+    setView('account');
+    if (params.get('checkout') || params.get('portal')) {
+      setParams({}, { replace: true });
+    }
+    return undefined;
+  }, [returnKind, params, setParams]);
 
   useEffect(() => {
     const previous = document.title;
@@ -130,6 +155,7 @@ function DashboardPage() {
         capsules={capsules}
         onOpenMemory={openMemory}
         onView={showView}
+        canWrite={canWrite}
       />
     );
   } else if (view === 'memories') {
@@ -144,7 +170,8 @@ function DashboardPage() {
           setSelectedId(id);
         }}
         onClose={() => setSelectedId('')}
-        onAdd={() => showView('add')}
+        onAdd={() => showView(canWrite === false ? 'account' : 'add')}
+        canWrite={canWrite}
       />
     );
   } else if (view === 'add') {
@@ -153,6 +180,8 @@ function DashboardPage() {
         people={people}
         addedBy={name || 'You'}
         onCreate={saveMemory}
+        canWrite={canWrite}
+        onAccount={() => showView('account')}
       />
     );
   } else if (view === 'capsules') {
@@ -163,6 +192,8 @@ function DashboardPage() {
         memories={memories}
         signature={name ? `${name}, for later` : 'Kept for later'}
         onCreate={saveCapsule}
+        canWrite={canWrite}
+        onAccount={() => showView('account')}
       />
     );
   } else if (view === 'family') {
@@ -172,6 +203,8 @@ function DashboardPage() {
         ownerEmail={user?.email || ''}
         people={people}
         onInvite={savePerson}
+        canWrite={canWrite}
+        onAccount={() => showView('account')}
       />
     );
   } else {
@@ -180,6 +213,8 @@ function DashboardPage() {
         email={user?.email || ''}
         onSignOut={handleSignOut}
         signingOut={signingOut}
+        subscription={subscription}
+        returnKind={returnKind}
       />
     );
   }
@@ -194,6 +229,15 @@ function DashboardPage() {
     >
       {archiveStatus === 'failed' && archiveError ? (
         <p role="alert" className="mb-8 text-sm text-error">{archiveError}</p>
+      ) : null}
+      {subscription.row?.cancel_at_period_end && subscription.isOpen && view !== 'account' && !dismissedGraceBanner ? (
+        <SubscriptionGraceBanner
+          row={subscription.row}
+          onManage={subscription.manage}
+          onViewAccount={() => showView('account')}
+          busy={subscription.busy}
+          onDismiss={() => setDismissedGraceBanner(true)}
+        />
       ) : null}
       {content}
     </DashboardShell>

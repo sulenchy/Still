@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowIcon } from './arrow-icon.jsx';
 import { DashboardIntro, FormAlert, FormStatus, paperCard } from './dashboard-shell.jsx';
+import { WritePaused } from './write-paused.jsx';
 import { editorial, fieldClass, primaryButton } from '../constants/class-names.js';
 import { initialFromName, inviteRoles } from '../constants/dashboard.js';
 import { roles } from '../constants/data.js';
@@ -17,7 +18,14 @@ function roleMeta(roleName) {
   return roles.find((role) => role[2] === roleName) || ['?', '', roleName, '', 'bg-pale'];
 }
 
-export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
+export function DashboardFamily({
+  ownerName,
+  ownerEmail,
+  people,
+  onInvite,
+  canWrite = true,
+  onAccount,
+}) {
   const [values, setValues] = useState({ name: '', email: '', role: 'Family member' });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
@@ -46,7 +54,7 @@ export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (saving) return;
+    if (saving || canWrite !== true) return;
     const nextErrors = {};
     const name = values.name.trim();
     const email = values.email.trim();
@@ -136,6 +144,9 @@ export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
           </ul>
         </section>
 
+        {canWrite === false ? (
+          <WritePaused onAccount={onAccount} />
+        ) : (
         <form className={`${paperCard} flex flex-col gap-6`} onSubmit={handleSubmit} noValidate aria-labelledby="invite-title">
           <div>
             <h2 id="invite-title" className={`${editorial} text-[40px]`}>Invite someone in.</h2>
@@ -192,11 +203,12 @@ export function DashboardFamily({ ownerName, ownerEmail, people, onInvite }) {
               </p>
             ) : null}
           </div>
-          <button type="submit" className={`${primaryButton} self-start`} disabled={saving}>
-            {saving ? 'Inviting' : 'Invite to the archive'}
+          <button type="submit" className={`${primaryButton} self-start`} disabled={saving || canWrite !== true}>
+            {saving ? 'Inviting' : (canWrite === null ? 'Checking your subscription' : 'Invite to the archive')}
             <ArrowIcon />
           </button>
         </form>
+        )}
       </div>
     </div>
   );

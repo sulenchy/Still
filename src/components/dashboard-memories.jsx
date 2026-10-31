@@ -35,6 +35,7 @@ export function DashboardMemories({
   onOpen,
   onClose,
   onAdd,
+  canWrite = true,
 }) {
   const [filter, setFilter] = useState('All memories');
   const [query, setQuery] = useState('');
@@ -194,8 +195,12 @@ export function DashboardMemories({
             Try another person or a few different words, or add the moment yourself.
           </p>
           <button type="button" className={`${primaryButton} mt-6`} onClick={onAdd}>
-            <PlusIcon />
-            Add a moment
+            {canWrite === false ? 'Start a subscription' : (
+              <>
+                <PlusIcon />
+                Add a moment
+              </>
+            )}
           </button>
         </div>
       ) : (
@@ -245,8 +250,12 @@ export function DashboardMemories({
               <b className="mb-3 grid size-11 place-items-center rounded-full bg-pale">
                 <PlusIcon />
               </b>
-              <strong className="font-serif text-[22px] font-normal">Add a moment</strong>
-              <small className="mt-2 text-[12px] text-muted">Photo, story, voice, or video</small>
+              <strong className="font-serif text-[22px] font-normal">
+                {canWrite === false ? 'Start a subscription' : 'Add a moment'}
+              </strong>
+              <small className="mt-2 text-[12px] text-muted">
+                {canWrite === false ? 'A subscription lets you add a moment' : 'Photo, story, voice, or video'}
+              </small>
             </button>
           </li>
         </ul>

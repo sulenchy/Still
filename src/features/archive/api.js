@@ -1,4 +1,5 @@
 import supabase from '../../lib/supabase.js';
+import { loadSubscription, subscriptionIsOpen } from '../subscription/api.js';
 
 export const roleLabels = {
   family_member: 'Family member',
@@ -432,6 +433,18 @@ async function removeMemory(memoryId) {
   return error;
 }
 
+async function requireOpenSubscription() {
+  let row = null;
+  try {
+    row = await loadSubscription();
+  } catch {
+    throw new Error('Could not check the subscription.');
+  }
+  if (!subscriptionIsOpen(row)) {
+    throw new Error('Start a subscription before adding to this archive.');
+  }
+}
+
 export async function loadArchive() {
   const { profile, archive } = await openArchive();
   const [people, memories, capsules] = await Promise.all([
@@ -450,6 +463,7 @@ export async function loadArchive() {
 }
 
 export async function createPerson({ name, email, role }) {
+  await requireOpenSubscription();
   const { archive } = await openArchive();
   const trimmedName = String(name || '').trim();
   const trimmedEmail = String(email || '').trim().toLowerCase();
@@ -488,6 +502,7 @@ export async function createMemory({
   file = null,
   durationSeconds = null,
 }) {
+  await requireOpenSubscription();
   const { user, archive } = await openArchive();
   const trimmedTitle = String(title || '').trim();
   const trimmedStory = String(story || '').trim();
@@ -579,6 +594,7 @@ export async function createCapsule({
   signature,
   memoryIds = [],
 }) {
+  await requireOpenSubscription();
   const { user, archive } = await openArchive();
   const trimmedTitle = String(title || '').trim();
   const trimmedMessage = String(message || '').trim();
