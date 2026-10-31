@@ -46,6 +46,10 @@ export function useSubscription(userId, returnKind) {
             setConfirming(false);
             return;
           }
+          if (returnKind === 'portal' && (next?.cancel_at_period_end || !subscriptionIsOpen(next))) {
+            setConfirming(false);
+            return;
+          }
           if (!polling || (returnKind === 'portal' && attempt >= attempts - 1)) {
             setConfirming(false);
             return;

@@ -2,6 +2,7 @@ import { primaryButton } from '../constants/class-names.js';
 import { paperCard } from './dashboard-shell.jsx';
 import {
   canStartCheckout,
+  formatSubscriptionDate,
   planName,
   subscriptionSummary,
 } from '../features/subscription/api.js';
@@ -85,6 +86,35 @@ export function DashboardSubscription({
             Checkout is not confirmed yet. If you finished it, wait a moment and try again.
           </p>
         ) : null}
+        {returnKind === 'portal' && row?.cancel_at_period_end ? (
+          <div
+            role="status"
+            className="border-l-2 border-peach bg-cream p-4 text-[13px] leading-[1.6]"
+          >
+            <p className="font-serif text-[18px] text-ink">Cancellation scheduled.</p>
+            <p className="mt-1 text-muted">
+              Your cancellation has been recorded. Your subscription will remain active until{' '}
+              <strong className="font-semibold text-ink">{formatSubscriptionDate(row.current_period_end)}</strong>.
+              No further charges will be made. You can continue adding moments until then, and your archive always stays safe and readable.
+            </p>
+          </div>
+        ) : null}
+        {returnKind === 'portal' && row?.status === 'canceled' ? (
+          <div
+            role="status"
+            className="border-l-2 border-peach bg-cream p-4 text-[13px] leading-[1.6]"
+          >
+            <p className="font-serif text-[18px] text-ink">Subscription ended.</p>
+            <p className="mt-1 text-muted">
+              Your subscription is now cancelled. No further charges will be made. Your archive, memories, and capsules remain permanently preserved and readable.
+            </p>
+          </div>
+        ) : null}
+        {returnKind === 'portal' && row && open && !row.cancel_at_period_end ? (
+          <p role="status" className="text-[14px] leading-[1.7] text-muted">
+            Subscription settings updated.
+          </p>
+        ) : null}
         {row ? (
           <div>
             <p className="text-[9px] tracking-[0.12em] text-peach uppercase">
@@ -103,7 +133,9 @@ export function DashboardSubscription({
             onClick={onManage}
             disabled={Boolean(busy)}
           >
-            {busy === 'portal' ? 'Opening subscription settings…' : 'Manage subscription'}
+            {busy === 'portal'
+              ? 'Opening subscription settings…'
+              : (row?.cancel_at_period_end ? 'Resume or manage subscription' : 'Manage subscription')}
           </button>
         ) : null}
       </div>

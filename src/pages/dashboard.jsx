@@ -15,6 +15,7 @@ import { DashboardFamily } from '../components/dashboard-family.jsx';
 import { DashboardMemories } from '../components/dashboard-memories.jsx';
 import { DashboardMoment } from '../components/dashboard-moment.jsx';
 import { DashboardShell } from '../components/dashboard-shell.jsx';
+import { SubscriptionGraceBanner } from '../components/subscription-grace-banner.jsx';
 
 import {
   dashboardTitles,
@@ -77,6 +78,7 @@ function DashboardPage() {
   const [justAddedId, setJustAddedId] = useState('');
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
+  const [dismissedGraceBanner, setDismissedGraceBanner] = useState(false);
   const selectedRef = useRef(selectedId);
   const previousView = useRef(view);
   selectedRef.current = selectedId;
@@ -227,6 +229,15 @@ function DashboardPage() {
     >
       {archiveStatus === 'failed' && archiveError ? (
         <p role="alert" className="mb-8 text-sm text-error">{archiveError}</p>
+      ) : null}
+      {subscription.row?.cancel_at_period_end && subscription.isOpen && view !== 'account' && !dismissedGraceBanner ? (
+        <SubscriptionGraceBanner
+          row={subscription.row}
+          onManage={subscription.manage}
+          onViewAccount={() => showView('account')}
+          busy={subscription.busy}
+          onDismiss={() => setDismissedGraceBanner(true)}
+        />
       ) : null}
       {content}
     </DashboardShell>
