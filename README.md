@@ -374,6 +374,12 @@ The rule is set on the Render service. It is not in this repo. After it is saved
 
 ---
 
+### Stripe Testing
+
+https://docs.stripe.com/testing
+
+---
+
 ## 🤝 Contributing
 
 Contributions that further improve accessibility, add new interactions, or sharpen the React and Tailwind landing page are welcome.

@@ -44,7 +44,7 @@ async function signedInUser(request) {
 
 async function billingRow(userId) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const serviceKey = Deno.env.get('SUPABASE_SECRET_KEYS');
   if (!supabaseUrl || !serviceKey) {
     throw new Error('Subscription settings are not configured.');
   }

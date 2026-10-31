@@ -7,7 +7,7 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
 
 const admin = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+  Deno.env.get('SUPABASE_SECRET_KEYS') ?? '',
   { auth: { persistSession: false, autoRefreshToken: false } },
 );
 
