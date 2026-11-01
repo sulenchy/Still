@@ -3,7 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../features/auth/useAuth.js';
 import { useSubscription } from '../features/subscription/useSubscription.js';
-import { invitePerson, keepCapsule, keepMemory } from '../features/archive/archiveActions.js';
+import {
+  attachMedia,
+  detachMedia,
+  invitePerson,
+  keepCapsule,
+  keepMemory,
+} from '../features/archive/archiveActions.js';
 import { selectCapsules } from '../features/archive/capsulesSlice.js';
 import { selectMemories } from '../features/archive/memoriesSlice.js';
 import { selectPeople } from '../features/archive/peopleSlice.js';
@@ -132,6 +138,10 @@ function DashboardPage() {
 
   const saveCapsule = (input) => unwrapArchive(dispatch, keepCapsule, input);
 
+  const addMedia = (input) => unwrapArchive(dispatch, attachMedia, input);
+
+  const removeMedia = (input) => unwrapArchive(dispatch, detachMedia, input);
+
   const handleSignOut = async () => {
     if (signingOut) return;
     setSignOutError('');
@@ -171,6 +181,8 @@ function DashboardPage() {
         }}
         onClose={() => setSelectedId('')}
         onAdd={() => showView(canWrite === false ? 'account' : 'add')}
+        onAddMedia={addMedia}
+        onRemoveMedia={removeMedia}
         canWrite={canWrite}
       />
     );

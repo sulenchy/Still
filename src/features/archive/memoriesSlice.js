@@ -1,4 +1,4 @@
-import { keepMemory } from './archiveActions.js';
+import { attachMedia, detachMedia, keepMemory } from './archiveActions.js';
 import { createEntitySlice, selectEntities } from './entitySlice.js';
 
 const memoriesSlice = createEntitySlice({
@@ -7,6 +7,14 @@ const memoriesSlice = createEntitySlice({
   newest: true,
   saved: keepMemory,
   place: 'start',
+  extra(builder, { remember, newest, place }) {
+    builder.addCase(attachMedia.fulfilled, (state, action) => {
+      remember(state, action.payload, { newest, place });
+    });
+    builder.addCase(detachMedia.fulfilled, (state, action) => {
+      remember(state, action.payload, { newest, place });
+    });
+  },
 });
 
 export function selectMemories(state) {

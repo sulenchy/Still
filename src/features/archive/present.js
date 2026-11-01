@@ -26,10 +26,26 @@ export function presentMemory(memory, peopleById, authorName) {
   const names = (memory.personIds || [])
     .map((id) => peopleById[id]?.name)
     .filter(Boolean);
-  const image = assetByRole(memory, 'image');
-  const video = assetByRole(memory, 'video');
-  const audio = assetByRole(memory, 'audio');
-  const visual = memory.kind === 'video' ? video : image;
+
+  const rawItems = memory.media || memory.assets || [];
+  const items = rawItems.filter((item) => item && item.url);
+
+  const allMedia = items.map((asset) => ({
+    id: asset.id,
+    role: asset.role,
+    url: asset.url,
+    alt: asset.alt || memory.title,
+    mimeType: asset.mimeType || '',
+    bytes: asset.bytes || 0,
+    duration: asset.durationSeconds != null ? formatDuration(asset.durationSeconds) : '',
+    durationSeconds: asset.durationSeconds ?? null,
+    displayOrder: asset.displayOrder ?? 0,
+  }));
+
+  const image = items.find((asset) => asset.role === 'image') || null;
+  const video = items.find((asset) => asset.role === 'video') || null;
+  const audio = items.find((asset) => asset.role === 'audio') || null;
+  const visual = memory.kind === 'video' ? (video || image) : (image || video);
   const speaker = memory.voiceSpeaker || '';
   const transcript = memory.voiceTranscript || '';
   const hasVoice = memory.kind === 'voice' || speaker || transcript || audio;
@@ -48,6 +64,7 @@ export function presentMemory(memory, peopleById, authorName) {
     alt: visual?.alt || memory.title,
     mediaType: visual?.role === 'video' ? 'video' : (visual ? 'image' : ''),
     audioSrc: audio?.url || '',
+    media: allMedia,
     voice: hasVoice
       ? {
         speaker: speaker || authorName || 'You',

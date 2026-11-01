@@ -77,13 +77,20 @@ function choiceClass(selected) {
   }`;
 }
 
+function formatBytes(bytes) {
+  if (!bytes) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+}
+
 export function DashboardMoment({ people, addedBy, onCreate, canWrite = true, onAccount }) {
   const [kind, setKind] = useState('Photo');
   const [privacy, setPrivacy] = useState('family');
   const [chosenPeople, setChosenPeople] = useState([]);
   const [values, setValues] = useState({ title: '', date: '', place: '', story: '' });
-  const [file, setFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [attachedFiles, setAttachedFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -93,15 +100,12 @@ export function DashboardMoment({ people, addedBy, onCreate, canWrite = true, on
   const messages = [...new Set([formError, ...Object.values(errors)].filter(Boolean))];
 
   useEffect(() => {
-    if (!file || mediaKindOf(file) !== 'image') {
-      setPreviewUrl('');
-      return undefined;
-    }
-
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+    return () => {
+      attachedFiles.forEach((item) => {
+        if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+      });
+    };
+  }, [attachedFiles]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -117,19 +121,53 @@ export function DashboardMoment({ people, addedBy, onCreate, canWrite = true, on
 
   const selectKind = (item) => {
     setKind(item);
-    setFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
     setErrors((current) => (current.file ? { ...current, file: '' } : current));
   };
 
-  const handleFile = (event) => {
-    const next = event.target.files?.[0] || null;
-    setFile(next);
-    if (!next || fileAllowed(kind, next)) {
-      setErrors((current) => (current.file ? { ...current, file: '' } : current));
+  const handleFiles = (event) => {
+    const selected = Array.from(event.target.files || []);
+    if (selected.length === 0) return;
+
+    let fileError = '';
+    const newItems = [];
+
+    for (const f of selected) {
+      if (f.size > 52428800) {
+        fileError = `"${f.name}" is larger than 50 MB.`;
+        break;
+      }
+      const role = mediaKindOf(f);
+      if (!role) {
+        fileError = `"${f.name}" is not a supported image, video, or audio file.`;
+        break;
+      }
+      newItems.push({
+        id: `${f.name}-${f.lastModified}-${Math.random()}`,
+        file: f,
+        name: f.name,
+        size: f.size,
+        role,
+        previewUrl: role === 'image' ? URL.createObjectURL(f) : '',
+      });
+    }
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    if (fileError) {
+      setErrors((current) => ({ ...current, file: fileError }));
       return;
     }
-    setErrors((current) => ({ ...current, file: upload.error }));
+
+    setAttachedFiles((current) => [...current, ...newItems]);
+    setErrors((current) => (current.file ? { ...current, file: '' } : current));
+  };
+
+  const removeAttachedFile = (index) => {
+    setAttachedFiles((current) => {
+      const removed = current[index];
+      if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+      return current.filter((_, i) => i !== index);
+    });
   };
 
   const handleSubmit = async (event) => {
@@ -137,7 +175,6 @@ export function DashboardMoment({ people, addedBy, onCreate, canWrite = true, on
     if (saving || canWrite !== true) return;
 
     const nextErrors = {};
-    if (file && !fileAllowed(kind, file)) nextErrors.file = upload.error;
     if (!values.title.trim()) nextErrors.title = 'Title is required';
     if (!values.date) nextErrors.date = 'Choose a date';
     if (!values.story.trim()) nextErrors.story = 'The story is required';
@@ -163,7 +200,7 @@ export function DashboardMoment({ people, addedBy, onCreate, canWrite = true, on
         voiceSpeaker: kind === 'Voice' ? (addedBy || 'You') : null,
         voiceTranscript: kind === 'Voice' ? story : null,
         personIds: chosenPeople,
-        file: file || null,
+        files: attachedFiles.map((item) => item.file),
       });
     } catch (error) {
       setFormError(error?.message || 'Could not keep that moment.');
@@ -217,36 +254,74 @@ export function DashboardMoment({ people, addedBy, onCreate, canWrite = true, on
           </div>
           <p className="mt-3 text-[12px] leading-[1.5] text-muted">{kindNotes[kind]}</p>
         </fieldset>
-        <div>
-          <label htmlFor="moment-file" className="mb-2 block text-[9px] tracking-[0.08em] uppercase">
-            {upload.label}
-          </label>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <label htmlFor="moment-file" className="block text-[9px] tracking-[0.08em] uppercase">
+              {upload.label} & Attachments
+            </label>
+            <span className="text-[12px] text-muted">Photos, videos, or audio (up to 50 MB)</span>
+          </div>
           <input
             ref={fileInputRef}
             id="moment-file"
             name="file"
             type="file"
-            accept={upload.accept}
+            multiple
+            accept="image/*,video/*,audio/*"
             aria-invalid={errors.file ? 'true' : undefined}
             aria-describedby={errors.file ? 'moment-file-error' : 'moment-file-hint'}
             className={`${fieldClass} min-h-11 cursor-pointer file:mr-4 file:inline-flex file:min-h-11 file:cursor-pointer file:items-center file:border-0 file:bg-pale file:px-4 file:font-sans file:text-sm file:text-ink`}
-            onChange={handleFile}
+            onChange={handleFiles}
           />
           {errors.file ? (
-            <p id="moment-file-error" className="mt-2 text-[13px] leading-[1.5] font-medium text-error">
+            <p id="moment-file-error" className="text-[13px] leading-[1.5] font-medium text-error">
               {errors.file}
             </p>
           ) : (
-            <small id="moment-file-hint" className="mt-2 block text-[12px] leading-[1.5] text-muted">
-              {upload.hint}
+            <small id="moment-file-hint" className="block text-[12px] leading-[1.5] text-muted">
+              {upload.hint} You can attach multiple photos, videos, and voice recordings to this same moment.
             </small>
           )}
-          {previewUrl ? (
-            <img
-              alt="Preview of the chosen photograph"
-              src={previewUrl}
-              className="mt-4 h-40 w-full object-cover saturate-[0.8]"
-            />
+          {attachedFiles.length > 0 ? (
+            <div className="mt-2 flex flex-col gap-2">
+              <p className="text-[10px] tracking-[0.1em] text-peach uppercase">
+                Attached Media ({attachedFiles.length})
+              </p>
+              <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {attachedFiles.map((item, index) => (
+                  <li
+                    key={item.id}
+                    className="flex items-center gap-3 border border-line bg-cream p-2"
+                  >
+                    {item.role === 'image' && item.previewUrl ? (
+                      <img
+                        src={item.previewUrl}
+                        alt={item.name}
+                        className="size-12 shrink-0 object-cover"
+                      />
+                    ) : (
+                      <div className="grid size-12 shrink-0 place-items-center bg-pale font-serif text-[11px] uppercase">
+                        {item.role === 'video' ? 'Video' : 'Audio'}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-ink">{item.name}</p>
+                      <p className="text-[11px] text-muted uppercase">
+                        {item.role} · {formatBytes(item.size)}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachedFile(index)}
+                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-muted hover:text-error"
+                      aria-label={`Remove ${item.name}`}
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : null}
         </div>
         <UnderlineField

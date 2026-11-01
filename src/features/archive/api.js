@@ -18,6 +18,7 @@ export const kindLabels = {
   story: 'Story',
   voice: 'Voice',
   video: 'Video',
+  moment: 'Moment',
 };
 
 export const kindValues = {
@@ -25,6 +26,7 @@ export const kindValues = {
   Story: 'story',
   Voice: 'voice',
   Video: 'video',
+  Moment: 'moment',
 };
 
 export const privacyLabels = {
@@ -41,6 +43,7 @@ const fileRoleByKind = {
   story: 'image',
   video: 'video',
   voice: 'audio',
+  moment: 'image',
 };
 
 const fileErrorByKind = {
@@ -48,6 +51,7 @@ const fileErrorByKind = {
   story: 'Choose an image file.',
   video: 'Choose a video file.',
   voice: 'Choose an audio file.',
+  moment: 'Choose an image, video, or audio file.',
 };
 
 const mimeByExtension = {
@@ -76,6 +80,8 @@ const constraintMessages = {
   memories_kind_check: 'Choose what kind of moment this is.',
   memories_privacy_check: 'Choose who can see this moment.',
   memories_voice_pair: 'A voice needs both a speaker and the words.',
+  memory_media_bytes_check: 'Choose a file that is not empty.',
+  memory_media_mime_matches_role: 'Choose an image, video, or audio file.',
   memory_assets_bytes_check: 'Choose a file that is not empty.',
   memory_assets_mime_matches_role: 'Choose an image, video, or audio file.',
   memory_assets_role_key: 'That moment already has this kind of file.',
@@ -153,7 +159,7 @@ function mapPerson(row) {
   };
 }
 
-function mapAsset(row, url = null) {
+function mapMedia(row, url = null) {
   return {
     id: row.id,
     role: row.role,
@@ -162,18 +168,27 @@ function mapAsset(row, url = null) {
     bytes: row.bytes,
     alt: row.alt || null,
     durationSeconds: row.duration_seconds ?? null,
+    displayOrder: row.display_order ?? 0,
+    createdAt: row.created_at,
     url,
   };
 }
 
+function mapAsset(row, url = null) {
+  return mapMedia(row, url);
+}
+
 function mapMemory(row) {
   const people = row.memory_people || [];
-  const assets = row.memory_assets || [];
+  const rawMedia = row.memory_media || row.memory_assets || [];
+  const sorted = [...rawMedia].sort((left, right) => (left.display_order ?? 0) - (right.display_order ?? 0));
+  const media = sorted.map((item) => mapMedia(item));
 
   return {
     id: row.id,
     createdBy: row.created_by,
     createdAt: row.created_at,
+    updatedAt: row.updated_at || row.created_at,
     title: row.title,
     story: row.story,
     place: row.place || null,
@@ -183,7 +198,8 @@ function mapMemory(row) {
     voiceSpeaker: row.voice_speaker || null,
     voiceTranscript: row.voice_transcript || null,
     personIds: people.map((person) => person.person_id),
-    assets: assets.map((asset) => mapAsset(asset)),
+    assets: media,
+    media,
   };
 }
 
@@ -282,6 +298,7 @@ const memoryColumns = `
   id,
   created_by,
   created_at,
+  updated_at,
   title,
   story,
   place,
@@ -291,20 +308,22 @@ const memoryColumns = `
   voice_speaker,
   voice_transcript,
   memory_people (person_id),
-  memory_assets (
+  memory_media (
     id,
     role,
     storage_path,
     mime_type,
     bytes,
     alt,
-    duration_seconds
+    duration_seconds,
+    display_order,
+    created_at
   )
 `;
 
 async function signMemories(memories) {
   const paths = memories.flatMap((memory) => (
-    memory.assets.map((asset) => asset.storagePath).filter(Boolean)
+    (memory.media || memory.assets || []).map((asset) => asset.storagePath).filter(Boolean)
   ));
   if (paths.length === 0) return memories;
 
@@ -318,13 +337,17 @@ async function signMemories(memories) {
     if (item.path && item.signedUrl && !item.error) urls.set(item.path, item.signedUrl);
   });
 
-  return memories.map((memory) => ({
-    ...memory,
-    assets: memory.assets.map((asset) => ({
+  return memories.map((memory) => {
+    const mediaWithUrls = (memory.media || memory.assets || []).map((asset) => ({
       ...asset,
       url: urls.get(asset.storagePath) || null,
-    })),
-  }));
+    }));
+    return {
+      ...memory,
+      assets: mediaWithUrls,
+      media: mediaWithUrls,
+    };
+  });
 }
 
 async function loadPeople(archiveId) {
@@ -402,6 +425,25 @@ function cleanDuration(role, value) {
   return Math.round(duration);
 }
 
+export function prepareMediaFile(file, alt = null, durationSeconds = null) {
+  if (!file) return null;
+  const bytes = file.size;
+  if (!bytes) throw new Error('Choose a file that is not empty.');
+  if (bytes > maxMediaBytes) throw new Error('That file is larger than 50 MB.');
+
+  const media = mediaFromFile(file);
+  if (!media) throw new Error('Choose an image, video, or audio file.');
+
+  return {
+    body: file,
+    bytes,
+    role: media.role,
+    mimeType: media.mimeType,
+    alt: alt || null,
+    durationSeconds: cleanDuration(media.role, durationSeconds),
+  };
+}
+
 function prepareFile(file, kind, title, durationSeconds) {
   if (!file) return null;
   const bytes = file.size;
@@ -410,7 +452,7 @@ function prepareFile(file, kind, title, durationSeconds) {
 
   const media = mediaFromFile(file);
   if (!media) throw new Error(fileErrorByKind[kind] || 'Choose an image, video, or audio file.');
-  if (media.role !== fileRoleByKind[kind]) throw new Error(fileErrorByKind[kind]);
+  if (kind !== 'moment' && media.role !== fileRoleByKind[kind]) throw new Error(fileErrorByKind[kind]);
 
   return {
     body: file,
@@ -500,6 +542,7 @@ export async function createMemory({
   voiceTranscript = null,
   personIds = [],
   file = null,
+  files = [],
   durationSeconds = null,
 }) {
   await requireOpenSubscription();
@@ -516,7 +559,21 @@ export async function createMemory({
 
   const voice = cleanVoice(voiceSpeaker, voiceTranscript);
   const people = uniqueIds(personIds, 'Choose people from this archive.');
-  const asset = prepareFile(file, kind, trimmedTitle, durationSeconds);
+
+  const fileList = [];
+  if (Array.isArray(files) && files.length > 0) {
+    files.forEach((item) => {
+      if (!item) return;
+      if (item instanceof File || item instanceof Blob) {
+        fileList.push(prepareMediaFile(item, trimmedTitle));
+      } else if (item.file) {
+        fileList.push(prepareMediaFile(item.file, item.alt || trimmedTitle, item.durationSeconds));
+      }
+    });
+  } else if (file) {
+    const prepared = prepareFile(file, kind, trimmedTitle, durationSeconds);
+    if (prepared) fileList.push(prepared);
+  }
 
   const { data: memory, error } = await supabase
     .from('memories')
@@ -544,9 +601,10 @@ export async function createMemory({
       fail(linkError, 'Choose people from this archive.');
     }
 
-    if (asset) {
+    for (let i = 0; i < fileList.length; i += 1) {
+      const asset = fileList[i];
       const { data: savedAsset, error: assetError } = await supabase
-        .from('memory_assets')
+        .from('memory_media')
         .insert({
           memory_id: memory.id,
           role: asset.role,
@@ -554,12 +612,13 @@ export async function createMemory({
           bytes: asset.bytes,
           alt: asset.alt,
           duration_seconds: asset.durationSeconds,
+          display_order: i,
+          created_by: user.id,
         })
         .select('id, storage_path')
         .single();
       fail(assetError, 'Could not keep that file.');
 
-      // The database assigns storage_path. The bucket accepts the file only after that row exists.
       const { error: uploadError } = await supabase.storage
         .from(mediaBucket)
         .upload(savedAsset.storage_path, asset.body, {
@@ -582,6 +641,111 @@ export async function createMemory({
     .eq('id', memory.id)
     .single();
   fail(readError, 'Could not open the moment that was just kept.');
+  const [signed] = await signMemories([mapMemory(data)]);
+  return signed;
+}
+
+export async function addMediaToMemory(memoryId, files = []) {
+  await requireOpenSubscription();
+  const { user } = await openArchive();
+  if (!isUuid(memoryId)) throw new Error('Invalid moment ID.');
+
+  const incoming = Array.isArray(files) ? files : [files];
+  const fileList = [];
+  incoming.forEach((item) => {
+    if (!item) return;
+    if (item instanceof File || item instanceof Blob) {
+      fileList.push(prepareMediaFile(item));
+    } else if (item.file) {
+      fileList.push(prepareMediaFile(item.file, item.alt, item.durationSeconds));
+    }
+  });
+
+  if (fileList.length === 0) throw new Error('Choose at least one file to attach.');
+
+  const { data: existing, error: fetchError } = await supabase
+    .from('memory_media')
+    .select('display_order')
+    .eq('memory_id', memoryId)
+    .order('display_order', { ascending: false })
+    .limit(1);
+  fail(fetchError, 'Could not inspect existing media.');
+
+  const startOrder = (existing?.[0]?.display_order ?? -1) + 1;
+  const uploadedIds = [];
+
+  try {
+    for (let i = 0; i < fileList.length; i += 1) {
+      const asset = fileList[i];
+      const { data: savedAsset, error: assetError } = await supabase
+        .from('memory_media')
+        .insert({
+          memory_id: memoryId,
+          role: asset.role,
+          mime_type: asset.mimeType,
+          bytes: asset.bytes,
+          alt: asset.alt,
+          duration_seconds: asset.durationSeconds,
+          display_order: startOrder + i,
+          created_by: user.id,
+        })
+        .select('id, storage_path')
+        .single();
+      fail(assetError, 'Could not keep that file.');
+      uploadedIds.push(savedAsset.id);
+
+      const { error: uploadError } = await supabase.storage
+        .from(mediaBucket)
+        .upload(savedAsset.storage_path, asset.body, {
+          contentType: asset.mimeType,
+          upsert: false,
+        });
+      fail(uploadError, 'Could not keep that file.');
+    }
+
+    await supabase
+      .from('memories')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', memoryId);
+  } catch (cause) {
+    if (uploadedIds.length > 0) {
+      await supabase.from('memory_media').delete().in('id', uploadedIds);
+    }
+    throw cause;
+  }
+
+  const { data, error: readError } = await supabase
+    .from('memories')
+    .select(memoryColumns)
+    .eq('id', memoryId)
+    .single();
+  fail(readError, 'Could not open the updated moment.');
+  const [signed] = await signMemories([mapMemory(data)]);
+  return signed;
+}
+
+export async function removeMediaFromMemory(memoryId, mediaId) {
+  await requireOpenSubscription();
+  if (!isUuid(memoryId) || !isUuid(mediaId)) throw new Error('Invalid ID.');
+
+  const { error: deleteError } = await supabase
+    .from('memory_media')
+    .delete()
+    .eq('id', mediaId)
+    .eq('memory_id', memoryId);
+  fail(deleteError, 'Could not remove that file.');
+
+  await supabase
+    .from('memories')
+    .update({ updated_at: new Date().toISOString() })
+    .eq('id', memoryId);
+
+  const { data, error: readError } = await supabase
+    .from('memories')
+    .select(memoryColumns)
+    .eq('id', memoryId)
+    .single();
+  fail(readError, 'Could not refresh the moment.');
   const [signed] = await signMemories([mapMemory(data)]);
   return signed;
 }

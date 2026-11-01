@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowIcon } from './arrow-icon.jsx';
-import { MemoryMedia } from './memory-media.jsx';
+import { MemoryMedia, SingleMedia } from './memory-media.jsx';
 import { PlusIcon } from './plus-icon.jsx';
 import { DashboardIntro, FormStatus } from './dashboard-shell.jsx';
 import { editorial, fieldClass, kicker, primaryButton } from '../constants/class-names.js';
@@ -35,10 +35,19 @@ export function DashboardMemories({
   onOpen,
   onClose,
   onAdd,
+  onAddMedia,
+  onRemoveMedia,
   canWrite = true,
 }) {
   const [filter, setFilter] = useState('All memories');
   const [query, setQuery] = useState('');
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [removingId, setRemovingId] = useState('');
+  const [removeError, setRemoveError] = useState('');
+  const addFileInputRef = useRef(null);
+
   const filters = [
     { id: 'all', label: 'All memories' },
     { id: 'family', label: 'Family' },
@@ -49,6 +58,12 @@ export function DashboardMemories({
     [memories, filter, query],
   );
   const selected = memories.find((memory) => memory.id === selectedId) || null;
+
+  useEffect(() => {
+    setActiveMediaIndex(0);
+    setUploadError('');
+    setRemoveError('');
+  }, [selectedId]);
 
   useEffect(() => {
     if (!selected) return undefined;
@@ -77,6 +92,47 @@ export function DashboardMemories({
     });
   };
 
+  const handleAttachFiles = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0 || !selected || !onAddMedia) return;
+    setUploadError('');
+    for (const f of files) {
+      if (f.size > 52428800) {
+        setUploadError(`"${f.name}" is larger than 50 MB.`);
+        if (addFileInputRef.current) addFileInputRef.current.value = '';
+        return;
+      }
+    }
+    setUploading(true);
+    try {
+      await onAddMedia(selected.id, files);
+      if (addFileInputRef.current) addFileInputRef.current.value = '';
+    } catch (err) {
+      setUploadError(err?.message || 'Could not attach media.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveAttachment = async (mediaId) => {
+    if (!selected || !onRemoveMedia || removingId) return;
+    if (!window.confirm('Remove this attachment from this moment?')) return;
+    setRemoveError('');
+    setRemovingId(mediaId);
+    try {
+      await onRemoveMedia(selected.id, mediaId);
+      setActiveMediaIndex(0);
+    } catch (err) {
+      setRemoveError(err?.message || 'Could not remove attachment.');
+    } finally {
+      setRemovingId('');
+    }
+  };
+
+  const visualMedia = (selected?.media || []).filter((m) => m.role === 'image' || m.role === 'video');
+  const audioMedia = (selected?.media || []).filter((m) => m.role === 'audio');
+  const activeItem = visualMedia[activeMediaIndex] || visualMedia[0] || null;
+
   return (
     <div className="flex flex-col gap-10">
       <DashboardIntro
@@ -96,20 +152,65 @@ export function DashboardMemories({
           aria-labelledby="memory-detail-title"
           className="grid gap-6 bg-paper p-4 shadow-[0_20px_60px_#1e2e2817] outline-none desk:grid-cols-[1.05fr_0.95fr] desk:p-6"
         >
-          {selected.src ? (
-            <MemoryMedia
-              memory={selected}
-              controls
-              className="h-[320px] w-full object-cover saturate-[0.8] desk:h-full desk:min-h-[420px]"
-            />
-          ) : (
-            <div className="flex min-h-[280px] items-end bg-beige p-6">
-              <p className="font-serif text-[32px] leading-[1.2] italic">{selected.story}</p>
-            </div>
-          )}
+          <div className="flex flex-col gap-3">
+            {activeItem ? (
+              <div className="relative">
+                <SingleMedia
+                  item={activeItem}
+                  controls
+                  className="h-[320px] w-full object-cover saturate-[0.8] desk:min-h-[420px]"
+                />
+                {canWrite ? (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAttachment(activeItem.id)}
+                    disabled={Boolean(removingId)}
+                    className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-full bg-forest/80 text-white hover:bg-error disabled:opacity-50"
+                    title="Remove this attachment"
+                    aria-label="Remove this attachment"
+                  >
+                    {removingId === activeItem.id ? '…' : '×'}
+                  </button>
+                ) : null}
+              </div>
+            ) : (
+              <div className="flex min-h-[280px] items-end bg-beige p-6">
+                <p className="font-serif text-[32px] leading-[1.2] italic">{selected.story}</p>
+              </div>
+            )}
+
+            {visualMedia.length > 1 ? (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Attached visual media">
+                {visualMedia.map((item, idx) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={idx === activeMediaIndex}
+                    onClick={() => setActiveMediaIndex(idx)}
+                    className={`relative size-16 shrink-0 overflow-hidden border-2 transition-opacity ${
+                      idx === activeMediaIndex ? 'border-forest' : 'border-line opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    {item.role === 'video' ? (
+                      <div className="grid size-full place-items-center bg-pale font-serif text-[10px] uppercase">
+                        Video
+                      </div>
+                    ) : (
+                      <img src={item.url} alt="" className="size-full object-cover" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
           <div className="flex flex-col px-1 py-2 desk:px-4">
             <div className="flex items-start justify-between gap-4">
-              <span className={kicker}>{selected.kind} · {privacyLabel(selected.privacy)}</span>
+              <span className={kicker}>
+                {selected.kind} · {privacyLabel(selected.privacy)}
+                {selected.media?.length ? ` · ${selected.media.length} ${selected.media.length === 1 ? 'file' : 'files'}` : ''}
+              </span>
               <button type="button" className="inline-flex min-h-11 items-center px-2 text-sm hover:underline" onClick={closeDetail}>
                 Close
               </button>
@@ -139,17 +240,74 @@ export function DashboardMemories({
                 </li>
               ))}
             </ul>
-            {selected.voice ? (
-              <div className="mt-6 border-t border-line pt-5">
-                {selected.audioSrc ? (
-                  <audio className="w-full min-h-11" controls preload="metadata" src={selected.audioSrc}>
-                    This recording can’t play in the browser.
-                  </audio>
-                ) : null}
-                {selected.voice.transcript ? (
-                  <blockquote className="mt-4 border-l border-peach pl-4 font-serif text-[20px] leading-[1.4] italic">
+
+            {audioMedia.length > 0 ? (
+              <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5">
+                <p className="text-[10px] tracking-[0.1em] text-peach uppercase">
+                  Audio Recordings ({audioMedia.length})
+                </p>
+                {audioMedia.map((audio) => (
+                  <div key={audio.id} className="flex flex-col gap-2 border border-line bg-cream p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[12px] font-medium text-ink">
+                        {audio.alt || 'Recording'} {audio.duration ? `(${audio.duration})` : ''}
+                      </span>
+                      {canWrite ? (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAttachment(audio.id)}
+                          disabled={Boolean(removingId)}
+                          className="text-[12px] text-muted hover:text-error"
+                        >
+                          {removingId === audio.id ? 'Removing…' : 'Remove'}
+                        </button>
+                      ) : null}
+                    </div>
+                    <audio className="w-full min-h-11" controls preload="metadata" src={audio.url}>
+                      This recording can’t play in the browser.
+                    </audio>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              selected.voice?.transcript ? (
+                <div className="mt-6 border-t border-line pt-5">
+                  <blockquote className="border-l border-peach pl-4 font-serif text-[20px] leading-[1.4] italic">
                     “{selected.voice.transcript}”
                   </blockquote>
+                </div>
+              ) : null
+            )}
+
+            {canWrite ? (
+              <div className="mt-6 flex flex-col gap-2 border-t border-line pt-5">
+                <div className="flex items-center justify-between gap-4">
+                  <label
+                    htmlFor={`add-media-${selected.id}`}
+                    className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-line bg-paper px-4 text-xs font-medium text-ink hover:bg-pale disabled:opacity-50"
+                  >
+                    <PlusIcon />
+                    {uploading ? 'Attaching media…' : 'Add media to this moment'}
+                  </label>
+                  <input
+                    ref={addFileInputRef}
+                    id={`add-media-${selected.id}`}
+                    type="file"
+                    multiple
+                    accept="image/*,video/*,audio/*"
+                    className="sr-only"
+                    disabled={uploading}
+                    onChange={handleAttachFiles}
+                  />
+                  <span className="text-[11px] text-muted">
+                    {selected.media?.length || 0} attached
+                  </span>
+                </div>
+                {uploadError ? (
+                  <p role="alert" className="text-[12px] font-medium text-error">{uploadError}</p>
+                ) : null}
+                {removeError ? (
+                  <p role="alert" className="text-[12px] font-medium text-error">{removeError}</p>
                 ) : null}
               </div>
             ) : null}
@@ -209,10 +367,17 @@ export function DashboardMemories({
             <li key={memory.id}>
               <article className="flex h-full flex-col bg-paper shadow-[0_20px_50px_#1e2e2814]">
                 {memory.src ? (
-                  <MemoryMedia
-                    memory={memory}
-                    className="h-[220px] w-full object-cover saturate-[0.8]"
-                  />
+                  <div className="relative">
+                    <MemoryMedia
+                      memory={memory}
+                      className="h-[220px] w-full object-cover saturate-[0.8]"
+                    />
+                    {memory.media?.length > 1 ? (
+                      <span className="absolute top-2 right-2 rounded-full bg-forest/85 px-2.5 py-0.5 text-[11px] text-white backdrop-blur-sm">
+                        {memory.media.length} items
+                      </span>
+                    ) : null}
+                  </div>
                 ) : (
                   <div className="flex h-[220px] items-end bg-beige p-5">
                     <p className="line-clamp-4 font-serif text-[22px] leading-[1.25] italic">{memory.story || memory.title}</p>

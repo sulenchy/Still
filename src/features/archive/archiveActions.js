@@ -1,10 +1,12 @@
 import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
 
 import {
+  addMediaToMemory,
   createCapsule,
   createMemory,
   createPerson,
   loadArchive,
+  removeMediaFromMemory,
   roleValues,
 } from './api.js';
 
@@ -66,6 +68,22 @@ export const invitePerson = createAsyncThunk(
 export const keepMemory = createAsyncThunk(
   'memories/keep',
   savedOrRejected(createMemory, 'Could not keep that moment.'),
+);
+
+export const attachMedia = createAsyncThunk(
+  'memories/attachMedia',
+  savedOrRejected(
+    ({ memoryId, files }) => addMediaToMemory(memoryId, files),
+    'Could not add media to that moment.',
+  ),
+);
+
+export const detachMedia = createAsyncThunk(
+  'memories/detachMedia',
+  savedOrRejected(
+    ({ memoryId, mediaId }) => removeMediaFromMemory(memoryId, mediaId),
+    'Could not remove that media item.',
+  ),
 );
 
 export const keepCapsule = createAsyncThunk(
