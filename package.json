@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate": "supabase db push --linked",
+    "db:migrate": "supabase db push --linked"
   },
   "keywords": [],
   "author": "",

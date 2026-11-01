@@ -49,6 +49,7 @@ export function createEntitySlice({
   newest = false,
   saved = null,
   place = 'end',
+  extra = null,
 }) {
   return createSlice({
     name,
@@ -90,6 +91,10 @@ export function createEntitySlice({
         builder.addCase(saved.fulfilled, (state, action) => {
           remember(state, action.payload, { newest, place });
         });
+      }
+
+      if (extra) {
+        extra(builder, { remember, newest, place });
       }
     },
   });
